@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>С Днём Рождения, Алиса!</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preload" href="fonts/Minecraftia-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="theme-color" content="#ff69b4">
+  <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.5/dist/jsmediatags.min.js"></script>
+</head>
+<body>
+  <audio id="bg-music" loop>
+    <source src="music.mp3" type="audio/mpeg">
+    Твой браузер не поддерживает аудио.
+  </audio>
+
+  <div id="main-content-wrapper"> 
+    <div class="container">
+      <img src="karina.gif" alt="Алиса" class="karina-img" />
+      <h1>Алиса, с Днём Рождения!</h1>
+
+      <div class="button-group" id="main-buttons">
+        <button id="openBtn" class="main-btn">Открыть поздравление</button>
+        <button id="musicBtn" class="main-btn">Музыка</button>
+        <div id="secretSection" class="secret-controls">
+          <input type="text" id="secret-input" placeholder="Секретное слово" class="main-btn" />
+          <button id="check-secret" class="main-btn">Проверить</button>
+        </div>
+      </div>
+
+      <div class="message" id="mainMessage"><p></p></div>
+      <div id="secret-message"></div>
+
+      <!-- Музыкальный плеер -->
+      <div id="musicPlayer" class="hidden">
+        <img src="cover.jpg" alt="Обложка" class="music-cover" />
+        <div class="music-title">Трек: Название трека</div>
+        <div class="music-controls">
+          <button id="prevBtn" class="back-btn">⏮</button>
+          <button id="playPauseBtn" class="back-btn">▶️</button>
+          <button id="nextBtn" class="back-btn">⏭</button>
+        </div>
+        <audio id="audioPlayer"></audio>
+      </div>
+    </div>
+  </div>
+
+  <button id="backBtn" class="hidden">← Назад</button>
+  <script src="script.js"></script>
+</body>
+</html>
