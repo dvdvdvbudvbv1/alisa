@@ -1,4 +1,4 @@
-// --- Аудио элементы ---
+// Аудио элементы
 const bgMusic = document.getElementById("bg-music");
 const audioPlayer = document.getElementById("audioPlayer");
 const playPauseBtn = document.getElementById("playPauseBtn");
@@ -7,7 +7,7 @@ const nextBtn = document.getElementById("nextBtn");
 const musicTitle = document.querySelector(".music-title");
 const musicCover = document.querySelector(".music-cover");
 
-// --- Треки ---
+// Треки
 const tracks = [
   { title: "The Way I See Things", src: encodeURI("./tracks/01 the way u see things.mp3"), cover: "./default_cover.png" },
   { title: "OMG", src: encodeURI("./tracks/02 OMG.mp3"), cover: "./default_cover.png" },
@@ -27,7 +27,7 @@ const tracks = [
 let currentTrack = 0;
 let isPlaying = false;
 
-// --- Инициализация ---
+// Инициализация
 function initAudio() {
   audioPlayer.preload = "none";
   bgMusic.preload = "none";
@@ -45,7 +45,7 @@ function initAudio() {
   loadTrack(currentTrack);
 }
 
-// --- Загрузка трека ---
+// Загрузка трека
 function loadTrack(index) {
   const track = tracks[index];
   audioPlayer.src = track.src;
@@ -81,7 +81,7 @@ function loadTrack(index) {
     });
 }
 
-// --- Воспроизведение и пауза ---
+// Воспроизведение и пауза
 function playCurrentTrack() {
   audioPlayer.play().then(() => {
     isPlaying = true;
@@ -101,7 +101,7 @@ function handlePlayError(e) {
   if (e.name === 'NotAllowedError') showAudioPrompt();
 }
 
-// --- Следующий / предыдущий трек ---
+// Следующий / предыдущий трек
 function playNextTrack() {
   currentTrack = (currentTrack + 1) % tracks.length;
   loadTrack(currentTrack);
@@ -112,7 +112,7 @@ function playPrevTrack() {
   loadTrack(currentTrack);
 }
 
-// --- Фоновая музыка ---
+// Фоновая музыка
 function playBgMusic() {
   bgMusic.play().then(() => console.log("Фоновая музыка включена")).catch(console.error);
 }
@@ -122,12 +122,12 @@ function stopBgMusic() {
   bgMusic.currentTime = 0;
 }
 
-// --- Вибрация ---
+// Вибрация
 function vibrate(duration = 100) {
   if ('vibrate' in navigator) navigator.vibrate(duration);
 }
 
-// --- Печать текста по буквам ---
+// Печать текста по буквам
 function typeWriter(element, text, speed) {
   let i = 0;
   element.innerHTML = "";
@@ -143,7 +143,7 @@ function typeWriter(element, text, speed) {
   type();
 }
 
-// --- Активация звука вручную ---
+// Активация звука вручную
 function showAudioPrompt() {
   const prompt = document.getElementById("audioPrompt");
   if (prompt) prompt.classList.remove("hidden");
@@ -156,7 +156,7 @@ function startAudio() {
   if (prompt) prompt.classList.add("hidden");
 }
 
-// --- DOM Загрузка ---
+// DOM Загрузка
 document.addEventListener("DOMContentLoaded", () => {
   initAudio();
   document.body.addEventListener("click", () => {
@@ -165,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }, { once: true });
 });
 
-// --- Обработчики кнопок ---
+// Обработчики кнопок
 playPauseBtn.addEventListener("click", () => {
   vibrate();
   isPlaying ? pauseCurrentTrack() : playCurrentTrack();
@@ -183,6 +183,7 @@ nextBtn.addEventListener("click", () => {
 
 audioPlayer.addEventListener("ended", playNextTrack);
 
+// Открыть поздравление
 document.getElementById("openBtn").addEventListener("click", () => {
   vibrate();
   document.getElementById("main-buttons").classList.add("hidden");
@@ -201,6 +202,7 @@ document.getElementById("openBtn").addEventListener("click", () => {
   playBgMusic();
 });
 
+// Секретное слово
 document.getElementById("check-secret").addEventListener("click", () => {
   vibrate();
   const value = document.getElementById("secret-input").value.trim().toLowerCase();
@@ -217,14 +219,22 @@ document.getElementById("check-secret").addEventListener("click", () => {
   }
 });
 
+// Музыка
 document.getElementById("musicBtn").addEventListener("click", () => {
   vibrate();
   document.getElementById("main-buttons").classList.add("hidden");
   document.getElementById("musicPlayer").classList.remove("hidden");
   document.getElementById("backBtn").classList.remove("hidden");
+
   playPauseBtn.textContent = isPlaying ? "⏸" : "▶️";
+
+  // Автовоспроизведение трека
+  if (!isPlaying) {
+    playCurrentTrack();
+  }
 });
 
+// Назад
 document.getElementById("backBtn").addEventListener("click", () => {
   vibrate();
   document.getElementById("main-buttons").classList.remove("hidden");
