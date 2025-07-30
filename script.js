@@ -1,4 +1,4 @@
-// --- Музыка для фона ---
+﻿// --- Музыка для фона ---
 function playMusic() {
   const music = document.getElementById("bg-music");
   music.play().catch(e => console.error("Ошибка при воспроизведении фона:", e));
@@ -57,6 +57,13 @@ document.getElementById("musicBtn").addEventListener("click", () => {
   document.getElementById("main-buttons").classList.add("hidden");
   document.getElementById("musicPlayer").classList.remove("hidden");
   document.getElementById("backBtn").classList.remove("hidden");
+  // При переходе в раздел музыки, загружаем текущий трек (который уже установлен)
+  // и убеждаемся, что кнопка "play/pause" показывает правильное состояние
+  if (!audio.paused) {
+    playPauseBtn.textContent = "⏸";
+  } else {
+    playPauseBtn.textContent = "▶️";
+  }
 });
 
 // --- Кнопка «← Назад» ---
@@ -68,6 +75,8 @@ document.getElementById("backBtn").addEventListener("click", () => {
   document.getElementById("musicPlayer").classList.add("hidden");
   document.getElementById("backBtn").classList.add("hidden");
   stopMusic();
+  audio.pause(); // Останавливаем воспроизведение трека из плеера
+  playPauseBtn.textContent = "▶️"; // Сбрасываем иконку на "играть"
 });
 
 // --- Печать текста по буквам ---
@@ -91,26 +100,62 @@ const audio = document.getElementById("audioPlayer");
 const playPauseBtn = document.getElementById("playPauseBtn");
 const musicTitle = document.querySelector(".music-title");
 
+// ВАЖНО: Убедитесь, что имена файлов в папке 'tracks' ТОЧНО соответствуют src здесь, включая расширения!
+// ДОБАВЛЕНО: cover: "default_cover.png" для каждого трека
 let tracks = [
-  { title: "Star Shopping", src: "tracks/star_shopping.mp3" },
-  { title: "Awful Things", src: "tracks/awful_things.mp3" },
-  { title: "Save That Shit", src: "tracks/save_that_shit.mp3" },
-  { title: "Beamer Boy", src: "tracks/beamer_boy.mp3" },
-  { title: "Crybaby", src: "tracks/crybaby.mp3" },
-  { title: "White Tee", src: "tracks/white_tee.mp3" },
-  { title: "Life is Beautiful", src: "tracks/life_is_beautiful.mp3" },
-  { title: "Benz Truck", src: "tracks/benz_truck.mp3" },
-  { title: "Better Off (Dying)", src: "tracks/better_off.mp3" }
+  { title: "The Way I See Things", src: "tracks/01 the way u see things.mp3", cover: "default_cover.png" },
+  { title: "OMG", src: "tracks/02 OMG.mp3", cover: "default_cover.png" },
+  { title: "The Song They Played (When I Crashed)", src: "tracks/03 The Song They Played (When I Crashed).mp3", cover: "default_cover.png" },
+  { title: "Nothing To Do", src: "tracks/04 Nothing To Do.mp3", cover: "default_cover.png" },
+  { title: "OM.Nomnom", src: "tracks/05 OM.Nomnom.mp3", cover: "default_cover.png" },
+  { title: "When I Lie (but the door slaps kinda)", src: "tracks/06 When I Lie (but the door slaps kinda).mp3", cover: "default_cover.png" },
+  { title: "Star Shopping", src: "tracks/07 Star Shopping.mp3", cover: "default_cover.png" },
+  { title: "Walk Away In The Door (demo F_ck)", src: "tracks/08 Walk Away In The Door (demo F_ck).mp3", cover: "default_cover.png" },
+  { title: "Absolute in Doubt", src: "tracks/09 Absolute in Doubt.mp3", cover: "default_cover.png" },
+  { title: "Hell Like", src: "tracks/10 Hell Like.mp3", cover: "default_cover.png" },
+  { title: "promised (unreleased)", src: "tracks/11 promised (unreleased).flac", cover: "default_cover.png" },
+  { title: "Still Alive (feat lido) (for a day)", src: "tracks/12 Still Alive (feat lido) (for a day).wav", cover: "default_cover.png" },
+  { title: "wxtd", src: "tracks/wxtd.mp3", cover: "default_cover.png" }
 ];
 let currentTrack = 0;
 
 function loadTrack(index) {
   const track = tracks[index];
   audio.src = track.src;
-  document.querySelector(".music-cover").src = track.cover;
-  musicTitle.textContent = "Трек: " + track.title;
+
+  // Используем jsmediatags для чтения ID3-тегов
+  jsmediatags.read(track.src, {
+    onSuccess: function(tag) {
+      const tags = tag.tags;
+      let displayTitle = tags.title || track.title; // Используем заголовок из ID3, если есть
+
+      if (tags.artist) {
+        displayTitle += " - " + tags.artist; // Добавляем исполнителя
+      }
+      musicTitle.textContent = "Трек: " + displayTitle;
+
+      // Обработка обложки альбома
+      if (tags.picture) {
+        const image = tags.picture;
+        let base64String = "";
+        for (let i = 0; i < image.data.length; i++) {
+          base64String += String.fromCharCode(image.data[i]);
+        }
+        const base64Url = "data:" + image.format + ";base64," + window.btoa(base64String);
+        document.querySelector(".music-cover").src = base64Url;
+      } else {
+        document.querySelector(".music-cover").src = "default_cover.png"; // Заглушка, если обложки нет
+      }
+    },
+    onError: function(error) {
+      console.error("Ошибка при чтении тегов для " + track.src + ":", error);
+      musicTitle.textContent = "Трек: " + track.title; // Используем название из массива при ошибке
+      document.querySelector(".music-cover").src = "default_cover.png"; // Используем заглушку при ошибке
+    }
+  });
 }
 
+// Загружаем первый трек при инициализации
 loadTrack(currentTrack);
 
 playPauseBtn.addEventListener("click", () => {
@@ -131,6 +176,14 @@ document.getElementById("prevBtn").addEventListener("click", () => {
 });
 
 document.getElementById("nextBtn").addEventListener("click", () => {
+  currentTrack = (currentTrack + 1) % tracks.length;
+  loadTrack(currentTrack);
+  audio.play();
+  playPauseBtn.textContent = "⏸";
+});
+
+// Добавляем обработчик события 'ended' для автоматического перехода к следующему треку
+audio.addEventListener('ended', () => {
   currentTrack = (currentTrack + 1) % tracks.length;
   loadTrack(currentTrack);
   audio.play();

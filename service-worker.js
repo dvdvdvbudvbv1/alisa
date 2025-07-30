@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alisa-birthday-pwa-v6'; // Увеличена версия кэша
+﻿const CACHE_NAME = 'alisa-birthday-pwa-v10'; // Увеличена версия кэша для гарантированного обновления
 const urlsToCache = [
   './',
   './index.html',
@@ -10,7 +10,8 @@ const urlsToCache = [
   './icons/icon-192x192.png',
   './icons/icon-512x512.png',
   './IMG_0020.gif',
-  './IMG_0023.webp'
+  './IMG_0023.webp',
+  './default_cover.png' // Убеждаемся, что обложка кэшируется
 ];
 
 // Установка сервис-воркера и кэширование статических ресурсов
