@@ -8,162 +8,166 @@ const musicTitle = document.querySelector(".music-title");
 const musicCover = document.querySelector(".music-cover");
 
 // Треки
-// Аудио элементы
-const bgMusic = document.getElementById("bg-music");
-const audioPlayer = document.getElementById("audioPlayer");
-const playPauseBtn = document.getElementById("playPauseBtn");
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
-const musicTitle = document.querySelector(".music-title");
-const musicCover = document.querySelector(".music-cover");
-
-// Треки
 const tracks = [
   { title: "The Way I See Things", src: "./tracks/01 the way u see things.mp3", cover: "./default_cover.png" },
-  // ... остальные треки ...
-].map(track => ({
-  ...track,
-  src: encodeURI(track.src) // Экранирование пробелов
-}));
+  { title: "OMG", src: "./tracks/02 OMG.mp3", cover: "./default_cover.png" },
+  { title: "The Song They Played (When I Crashed)", src: "./tracks/03 The Song They Played (When I Crashed).mp3", cover: "./default_cover.png" },
+  { title: "Nothing To Do", src: "./tracks/04 Nothing To Do.mp3", cover: "./default_cover.png" },
+  { title: "OM.Nomnom", src: "./tracks/05 OM.Nomnom.mp3", cover: "./default_cover.png" },
+  { title: "When I Lie (but the door slaps kinda)", src: "./tracks/06 When I Lie (but the door slaps kinda).mp3", cover: "./default_cover.png" },
+  { title: "Star Shopping", src: "./tracks/07 Star Shopping.mp3", cover: "./default_cover.png" },
+  { title: "Walk Away In The Door (demo F_ck)", src: "./tracks/08 Walk Away In The Door (demo F_ck).mp3", cover: "./default_cover.png" },
+  { title: "Absolute in Doubt", src: "./tracks/09 Absolute in Doubt.mp3", cover: "./default_cover.png" },
+  { title: "Hell Like", src: "./tracks/10 Hell Like.mp3", cover: "./default_cover.png" },
+  { title: "promised (unreleased)", src: "./tracks/11 promised (unreleased).flac", cover: "./default_cover.png" },
+  { title: "Still Alive (feat lido) (for a day)", src: "./tracks/12 Still Alive (feat lido) (for a day).wav", cover: "./default_cover.png" },
+  { title: "wxtd", src: "./tracks/wxtd.mp3", cover: "./default_cover.png" }
+];
 
 let currentTrack = 0;
 let isPlaying = false;
-let audioInitialized = false;
 
 // Инициализация аудио
 function initAudio() {
-  if (audioInitialized) return;
-  
+  // Настройка аудио элементов
   audioPlayer.preload = "auto";
-  bgMusic.preload = "none";
-  bgMusic.loop = true;
+  bgMusic.preload = "auto";
   
-  audioPlayer.addEventListener('error', handleAudioError);
-  bgMusic.addEventListener('error', handleAudioError);
-  
-  audioInitialized = true;
+  // Обработчики ошибок
+  audioPlayer.addEventListener('error', (e) => {
+    console.error("Audio Player Error:", e);
+    musicTitle.textContent = "Ошибка загрузки трека";
+    setTimeout(playNextTrack, 2000);
+  });
+
+  bgMusic.addEventListener('error', (e) => {
+    console.error("Background Music Error:", e);
+  });
+
+  // Загрузка первого трека
   loadTrack(currentTrack);
 }
 
-function handleAudioError(e) {
-  console.error("Audio error:", e.target.error);
-  if (e.target === audioPlayer) {
-    musicTitle.textContent = "Ошибка загрузки трека";
-    setTimeout(playNextTrack, 2000);
-  }
-}
-
-async function loadTrack(index) {
+// Загрузка трека
+function loadTrack(index) {
   const track = tracks[index];
-  console.log("Loading:", track.src);
-  
-  try {
-    // Проверка доступности
-    const response = await fetch(track.src);
-    if (!response.ok) throw new Error("Track not available");
-    
-    audioPlayer.src = track.src;
-    musicTitle.textContent = track.title;
-    musicCover.src = track.cover;
-    
-    // Загрузка метаданных
-    try {
-      const tags = await new Promise((resolve, reject) => {
-        jsmediatags.read(track.src, {
-          onSuccess: resolve,
-          onError: reject
-        });
-      });
+  console.log("Loading track:", track.src);
+
+  // Проверка доступности трека
+  fetch(track.src)
+    .then(response => {
+      if (!response.ok) throw new Error("Track not found");
       
-      if (tags.tags) {
-        const { title, artist, picture } = tags.tags;
-        if (title) musicTitle.textContent = title;
-        if (artist) musicTitle.textContent += ` - ${artist}`;
-        if (picture) {
-          const base64 = btoa(String.fromCharCode(...picture.data));
-          musicCover.src = `data:${picture.format};base64,${base64}`;
-        }
+      audioPlayer.src = track.src;
+      musicTitle.textContent = track.title;
+      musicCover.src = track.cover;
+
+      // Попытка чтения метаданных
+      jsmediatags.read(track.src, {
+        onSuccess: function(tag) {
+          const tags = tag.tags;
+          if (tags.title) musicTitle.textContent = tags.title;
+          if (tags.artist) musicTitle.textContent += ` - ${tags.artist}`;
+          
+          if (tags.picture) {
+            const base64String = btoa(String.fromCharCode(...tags.picture.data));
+            musicCover.src = `data:${tags.picture.format};base64,${base64String}`;
+          }
+        },
+        onError: () => console.log("No metadata found")
+      });
+
+      if (isPlaying) {
+        audioPlayer.play().catch(e => console.error("Play error:", e));
       }
-    } catch (metaError) {
-      console.log("Metadata error:", metaError);
-    }
-    
-    if (isPlaying) {
-      await audioPlayer.play().catch(console.error);
-    }
-  } catch (error) {
-    console.error("Load failed:", error);
-    playNextTrack();
-  }
+    })
+    .catch(error => {
+      console.error("Track load error:", error);
+      playNextTrack();
+    });
 }
 
 // Управление воспроизведением
-async function togglePlayback() {
-  if (isPlaying) {
-    audioPlayer.pause();
-    isPlaying = false;
-    playPauseBtn.textContent = "▶️";
-  } else {
-    try {
-      await audioPlayer.play();
+function playCurrentTrack() {
+  audioPlayer.play()
+    .then(() => {
       isPlaying = true;
       playPauseBtn.textContent = "⏸";
-      bgMusic.pause();
-    } catch (error) {
-      console.error("Playback failed:", error);
-      showAudioActivationPrompt();
-    }
-  }
+      stopBgMusic();
+    })
+    .catch(e => {
+      console.error("Play failed:", e);
+      // Показать кнопку активации аудио
+      if (e.name === 'NotAllowedError') {
+        musicTitle.textContent = "Нажмите '▶️' для активации";
+      }
+    });
 }
 
-function showAudioActivationPrompt() {
-  const prompt = document.createElement('div');
-  prompt.className = 'audio-prompt';
-  prompt.innerHTML = `
-    <p>Нажмите здесь, чтобы активировать аудио</p>
-    <button id="activate-audio">Активировать</button>
-  `;
-  document.body.appendChild(prompt);
-  
-  document.getElementById('activate-audio').addEventListener('click', async () => {
-    await audioPlayer.play();
-    prompt.remove();
-  });
+function pauseCurrentTrack() {
+  audioPlayer.pause();
+  isPlaying = false;
+  playPauseBtn.textContent = "▶️";
 }
 
 function playNextTrack() {
   currentTrack = (currentTrack + 1) % tracks.length;
   loadTrack(currentTrack);
-  if (isPlaying) audioPlayer.play().catch(console.error);
+  if (isPlaying) playCurrentTrack();
 }
 
 function playPrevTrack() {
   currentTrack = (currentTrack - 1 + tracks.length) % tracks.length;
   loadTrack(currentTrack);
-  if (isPlaying) audioPlayer.play().catch(console.error);
+  if (isPlaying) playCurrentTrack();
 }
 
-// Инициализация
+// Фоновая музыка
+function playBgMusic() {
+  bgMusic.play()
+    .then(() => console.log("Background music playing"))
+    .catch(e => console.error("BG music play error:", e));
+}
+
+function stopBgMusic() {
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
+}
+
+// Вибрация
+function vibrate(duration = 100) {
+  if ('vibrate' in navigator) navigator.vibrate(duration);
+}
+
+// Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', () => {
   initAudio();
   
-  // Разблокировка аудио
-  const unlock = () => {
-    bgMusic.volume = 0;
-    bgMusic.play()
-      .then(() => bgMusic.pause())
-      .catch(console.log)
-      .finally(() => bgMusic.volume = 1);
-  };
-  
-  document.addEventListener('click', unlock, { once: true });
+  // Разблокировка аудио по первому клику
+  document.body.addEventListener('click', () => {
+    audioPlayer.play().then(() => audioPlayer.pause());
+    bgMusic.play().then(() => bgMusic.pause());
+  }, { once: true });
 });
 
-// Обработчики
-playPauseBtn.addEventListener("click", togglePlayback);
-prevBtn.addEventListener("click", playPrevTrack);
-nextBtn.addEventListener("click", playNextTrack);
+// Обработчики кнопок
+playPauseBtn.addEventListener("click", () => {
+  vibrate();
+  isPlaying ? pauseCurrentTrack() : playCurrentTrack();
+});
+
+prevBtn.addEventListener("click", () => {
+  vibrate();
+  playPrevTrack();
+});
+
+nextBtn.addEventListener("click", () => {
+  vibrate();
+  playNextTrack();
+});
+
 audioPlayer.addEventListener('ended', playNextTrack);
+
 // Остальные обработчики (поздравление, секретное слово и т.д.) остаются без изменений
 // ... (код из предыдущего ответа)
 // --- Кнопка «Открыть поздравление» ---
