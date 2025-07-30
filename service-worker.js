@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alisa-birthday-pwa-final-v1';
+const CACHE_NAME = 'alisa-birthday-pwa-v2'; // Обновляй версию при изменениях
 const urlsToCache = [
   './',
   './index.html',
@@ -9,11 +9,9 @@ const urlsToCache = [
   './fonts/Minecraftia-Regular.ttf',
   './icons/icon-192x192.png',
   './icons/icon-512x512.png',
-  './IMG_0020.gif',
-  './IMG_0023.webp',
   './default_cover.png',
-  
-  // Треки с URL-encoded именами
+
+  // Все аудиотреки (URL-encoded!)
   './tracks/01%20the%20way%20u%20see%20things.mp3',
   './tracks/02%20OMG.mp3',
   './tracks/03%20The%20Song%20They%20Played%20(When%20I%20Crashed).mp3',
@@ -33,45 +31,51 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        return cache.addAll(urlsToCache.map(url => new Request(url, { cache: 'reload' })));
+        return cache.addAll(
+          urlsToCache.map(url => new Request(url, { cache: 'reload' }))
+        );
       })
-      .catch(err => console.error('Cache addAll error:', err))
+      .catch(err => console.error('Ошибка кэширования:', err))
   );
 });
 
 self.addEventListener('fetch', event => {
-  // Особый обработчик для аудио
-  if (event.request.url.includes('/tracks/') || event.request.url.includes('music.mp3')) {
+  const requestUrl = new URL(event.request.url);
+
+  // Аудио запросы — всегда сначала из кэша
+  if (requestUrl.pathname.includes('/tracks/') || requestUrl.pathname.endsWith('music.mp3')) {
     event.respondWith(
       caches.match(event.request)
-        .then(cached => {
-          return cached || fetch(event.request)
-            .then(response => {
-              // Кэшируем полученный файл
-              const clone = response.clone();
-              caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-              return response;
+        .then(cachedResponse => {
+          if (cachedResponse) return cachedResponse;
+
+          return fetch(event.request)
+            .then(networkResponse => {
+              return caches.open(CACHE_NAME).then(cache => {
+                cache.put(event.request, networkResponse.clone());
+                return networkResponse;
+              });
             })
             .catch(() => {
-              // Fallback для аудио
+              // fallback — фоновая музыка
               return caches.match('./music.mp3');
             });
         })
     );
   } else {
-    // Стандартная обработка
+    // Всё остальное — cache first, then network fallback
     event.respondWith(
       caches.match(event.request)
-        .then(cached => cached || fetch(event.request))
+        .then(response => response || fetch(event.request))
     );
   }
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        keys.map(key => {
+        cacheNames.map(key => {
           if (key !== CACHE_NAME) {
             return caches.delete(key);
           }
