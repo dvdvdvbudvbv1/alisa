@@ -1,4 +1,4 @@
-// --- Глобальные переменные ---
+// Аудио элементы
 const bgMusic = document.getElementById("bg-music");
 const audioPlayer = document.getElementById("audioPlayer");
 const playPauseBtn = document.getElementById("playPauseBtn");
@@ -7,7 +7,7 @@ const nextBtn = document.getElementById("nextBtn");
 const musicTitle = document.querySelector(".music-title");
 const musicCover = document.querySelector(".music-cover");
 
-// --- Треки для плеера ---
+// Треки
 const tracks = [
   { title: "The Way I See Things", src: "./tracks/01 the way u see things.mp3", cover: "./default_cover.png" },
   { title: "OMG", src: "./tracks/02 OMG.mp3", cover: "./default_cover.png" },
@@ -27,67 +27,80 @@ const tracks = [
 let currentTrack = 0;
 let isPlaying = false;
 
-// --- Функции плеера ---
+// Инициализация аудио
+function initAudio() {
+  // Настройка аудио элементов
+  audioPlayer.preload = "auto";
+  bgMusic.preload = "auto";
+  
+  // Обработчики ошибок
+  audioPlayer.addEventListener('error', (e) => {
+    console.error("Audio Player Error:", e);
+    musicTitle.textContent = "Ошибка загрузки трека";
+    setTimeout(playNextTrack, 2000);
+  });
+
+  bgMusic.addEventListener('error', (e) => {
+    console.error("Background Music Error:", e);
+  });
+
+  // Загрузка первого трека
+  loadTrack(currentTrack);
+}
+
+// Загрузка трека
 function loadTrack(index) {
   const track = tracks[index];
-  
+  console.log("Loading track:", track.src);
+
   // Проверка доступности трека
   fetch(track.src)
     .then(response => {
-      if (!response.ok) throw new Error("Трек не найден");
+      if (!response.ok) throw new Error("Track not found");
       
       audioPlayer.src = track.src;
-      musicTitle.textContent = `Трек: ${track.title}`;
+      musicTitle.textContent = track.title;
       musicCover.src = track.cover;
-      
+
       // Попытка чтения метаданных
       jsmediatags.read(track.src, {
         onSuccess: function(tag) {
           const tags = tag.tags;
-          let displayTitle = tags.title || track.title;
+          if (tags.title) musicTitle.textContent = tags.title;
+          if (tags.artist) musicTitle.textContent += ` - ${tags.artist}`;
           
-          if (tags.artist) {
-            displayTitle += ` - ${tags.artist}`;
-          }
-          musicTitle.textContent = displayTitle;
-
           if (tags.picture) {
-            const image = tags.picture;
-            let base64String = "";
-            for (let i = 0; i < image.data.length; i++) {
-              base64String += String.fromCharCode(image.data[i]);
-            }
-            musicCover.src = `data:${image.format};base64,${window.btoa(base64String)}`;
+            const base64String = btoa(String.fromCharCode(...tags.picture.data));
+            musicCover.src = `data:${tags.picture.format};base64,${base64String}`;
           }
         },
-        onError: function(error) {
-          console.log("Метаданные не найдены, используется информация по умолчанию");
-        }
+        onError: () => console.log("No metadata found")
       });
-      
+
       if (isPlaying) {
-        audioPlayer.play().catch(e => console.error("Ошибка воспроизведения:", e));
+        audioPlayer.play().catch(e => console.error("Play error:", e));
       }
     })
     .catch(error => {
-      console.error("Ошибка загрузки трека:", error);
-      // Переход к следующему треку при ошибке
-      currentTrack = (currentTrack + 1) % tracks.length;
-      loadTrack(currentTrack);
+      console.error("Track load error:", error);
+      playNextTrack();
     });
 }
 
+// Управление воспроизведением
 function playCurrentTrack() {
-  stopBgMusic();
   audioPlayer.play()
     .then(() => {
       isPlaying = true;
       playPauseBtn.textContent = "⏸";
+      stopBgMusic();
     })
     .catch(e => {
-      console.error("Ошибка воспроизведения:", e);
-      isPlaying = false;
-      playPauseBtn.textContent = "▶️";
+      console.error("Play failed:", e);
+      // Показать кнопку активации аудио
+      if (e.name === 'NotAllowedError') {
+        musicTitle.textContent = "Нажмите '▶️' для активации";
+      }
     });
 }
 
@@ -100,26 +113,47 @@ function pauseCurrentTrack() {
 function playNextTrack() {
   currentTrack = (currentTrack + 1) % tracks.length;
   loadTrack(currentTrack);
-  playCurrentTrack();
+  if (isPlaying) playCurrentTrack();
 }
 
 function playPrevTrack() {
   currentTrack = (currentTrack - 1 + tracks.length) % tracks.length;
   loadTrack(currentTrack);
-  playCurrentTrack();
+  if (isPlaying) playCurrentTrack();
 }
 
-// --- Инициализация плеера ---
-loadTrack(currentTrack);
+// Фоновая музыка
+function playBgMusic() {
+  bgMusic.play()
+    .then(() => console.log("Background music playing"))
+    .catch(e => console.error("BG music play error:", e));
+}
 
-// --- Обработчики событий плеера ---
+function stopBgMusic() {
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
+}
+
+// Вибрация
+function vibrate(duration = 100) {
+  if ('vibrate' in navigator) navigator.vibrate(duration);
+}
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', () => {
+  initAudio();
+  
+  // Разблокировка аудио по первому клику
+  document.body.addEventListener('click', () => {
+    audioPlayer.play().then(() => audioPlayer.pause());
+    bgMusic.play().then(() => bgMusic.pause());
+  }, { once: true });
+});
+
+// Обработчики кнопок
 playPauseBtn.addEventListener("click", () => {
   vibrate();
-  if (isPlaying) {
-    pauseCurrentTrack();
-  } else {
-    playCurrentTrack();
-  }
+  isPlaying ? pauseCurrentTrack() : playCurrentTrack();
 });
 
 prevBtn.addEventListener("click", () => {
@@ -132,25 +166,10 @@ nextBtn.addEventListener("click", () => {
   playNextTrack();
 });
 
-audioPlayer.addEventListener('ended', () => {
-  playNextTrack();
-});
+audioPlayer.addEventListener('ended', playNextTrack);
 
-// --- Фоновая музыка ---
-function playBgMusic() {
-  bgMusic.play().catch(e => console.error("Ошибка фоновой музыки:", e));
-}
-
-function stopBgMusic() {
-  bgMusic.pause();
-  bgMusic.currentTime = 0;
-}
-
-// --- Вибрация ---
-function vibrate(duration = 100) {
-  if ('vibrate' in navigator) navigator.vibrate(duration);
-}
-
+// Остальные обработчики (поздравление, секретное слово и т.д.) остаются без изменений
+// ... (код из предыдущего ответа)
 // --- Кнопка «Открыть поздравление» ---
 document.getElementById("openBtn").addEventListener("click", () => {
   vibrate();
