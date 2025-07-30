@@ -1,13 +1,149 @@
-﻿// --- Музыка для фона ---
-function playMusic() {
-  const music = document.getElementById("bg-music");
-  music.play().catch(e => console.error("Ошибка при воспроизведении фона:", e));
+// --- Глобальные переменные ---
+const bgMusic = document.getElementById("bg-music");
+const audioPlayer = document.getElementById("audioPlayer");
+const playPauseBtn = document.getElementById("playPauseBtn");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const musicTitle = document.querySelector(".music-title");
+const musicCover = document.querySelector(".music-cover");
+
+// --- Треки для плеера ---
+const tracks = [
+  { title: "The Way I See Things", src: "./tracks/01 the way u see things.mp3", cover: "./default_cover.png" },
+  { title: "OMG", src: "./tracks/02 OMG.mp3", cover: "./default_cover.png" },
+  { title: "The Song They Played (When I Crashed)", src: "./tracks/03 The Song They Played (When I Crashed).mp3", cover: "./default_cover.png" },
+  { title: "Nothing To Do", src: "./tracks/04 Nothing To Do.mp3", cover: "./default_cover.png" },
+  { title: "OM.Nomnom", src: "./tracks/05 OM.Nomnom.mp3", cover: "./default_cover.png" },
+  { title: "When I Lie (but the door slaps kinda)", src: "./tracks/06 When I Lie (but the door slaps kinda).mp3", cover: "./default_cover.png" },
+  { title: "Star Shopping", src: "./tracks/07 Star Shopping.mp3", cover: "./default_cover.png" },
+  { title: "Walk Away In The Door (demo F_ck)", src: "./tracks/08 Walk Away In The Door (demo F_ck).mp3", cover: "./default_cover.png" },
+  { title: "Absolute in Doubt", src: "./tracks/09 Absolute in Doubt.mp3", cover: "./default_cover.png" },
+  { title: "Hell Like", src: "./tracks/10 Hell Like.mp3", cover: "./default_cover.png" },
+  { title: "promised (unreleased)", src: "./tracks/11 promised (unreleased).flac", cover: "./default_cover.png" },
+  { title: "Still Alive (feat lido) (for a day)", src: "./tracks/12 Still Alive (feat lido) (for a day).wav", cover: "./default_cover.png" },
+  { title: "wxtd", src: "./tracks/wxtd.mp3", cover: "./default_cover.png" }
+];
+
+let currentTrack = 0;
+let isPlaying = false;
+
+// --- Функции плеера ---
+function loadTrack(index) {
+  const track = tracks[index];
+  
+  // Проверка доступности трека
+  fetch(track.src)
+    .then(response => {
+      if (!response.ok) throw new Error("Трек не найден");
+      
+      audioPlayer.src = track.src;
+      musicTitle.textContent = `Трек: ${track.title}`;
+      musicCover.src = track.cover;
+      
+      // Попытка чтения метаданных
+      jsmediatags.read(track.src, {
+        onSuccess: function(tag) {
+          const tags = tag.tags;
+          let displayTitle = tags.title || track.title;
+          
+          if (tags.artist) {
+            displayTitle += ` - ${tags.artist}`;
+          }
+          musicTitle.textContent = displayTitle;
+
+          if (tags.picture) {
+            const image = tags.picture;
+            let base64String = "";
+            for (let i = 0; i < image.data.length; i++) {
+              base64String += String.fromCharCode(image.data[i]);
+            }
+            musicCover.src = `data:${image.format};base64,${window.btoa(base64String)}`;
+          }
+        },
+        onError: function(error) {
+          console.log("Метаданные не найдены, используется информация по умолчанию");
+        }
+      });
+      
+      if (isPlaying) {
+        audioPlayer.play().catch(e => console.error("Ошибка воспроизведения:", e));
+      }
+    })
+    .catch(error => {
+      console.error("Ошибка загрузки трека:", error);
+      // Переход к следующему треку при ошибке
+      currentTrack = (currentTrack + 1) % tracks.length;
+      loadTrack(currentTrack);
+    });
 }
 
-function stopMusic() {
-  const music = document.getElementById("bg-music");
-  music.pause();
-  music.currentTime = 0;
+function playCurrentTrack() {
+  stopBgMusic();
+  audioPlayer.play()
+    .then(() => {
+      isPlaying = true;
+      playPauseBtn.textContent = "⏸";
+    })
+    .catch(e => {
+      console.error("Ошибка воспроизведения:", e);
+      isPlaying = false;
+      playPauseBtn.textContent = "▶️";
+    });
+}
+
+function pauseCurrentTrack() {
+  audioPlayer.pause();
+  isPlaying = false;
+  playPauseBtn.textContent = "▶️";
+}
+
+function playNextTrack() {
+  currentTrack = (currentTrack + 1) % tracks.length;
+  loadTrack(currentTrack);
+  playCurrentTrack();
+}
+
+function playPrevTrack() {
+  currentTrack = (currentTrack - 1 + tracks.length) % tracks.length;
+  loadTrack(currentTrack);
+  playCurrentTrack();
+}
+
+// --- Инициализация плеера ---
+loadTrack(currentTrack);
+
+// --- Обработчики событий плеера ---
+playPauseBtn.addEventListener("click", () => {
+  vibrate();
+  if (isPlaying) {
+    pauseCurrentTrack();
+  } else {
+    playCurrentTrack();
+  }
+});
+
+prevBtn.addEventListener("click", () => {
+  vibrate();
+  playPrevTrack();
+});
+
+nextBtn.addEventListener("click", () => {
+  vibrate();
+  playNextTrack();
+});
+
+audioPlayer.addEventListener('ended', () => {
+  playNextTrack();
+});
+
+// --- Фоновая музыка ---
+function playBgMusic() {
+  bgMusic.play().catch(e => console.error("Ошибка фоновой музыки:", e));
+}
+
+function stopBgMusic() {
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
 }
 
 // --- Вибрация ---
@@ -31,7 +167,7 @@ document.getElementById("openBtn").addEventListener("click", () => {
 Никогда не переставай мечтать — ты достойна самого лучшего💗<br><br>
 С любовью и самыми тёплыми пожеланиями 💫<br><br>`;
   typeWriter(messageParagraph, fullText, 50);
-  playMusic();
+  playBgMusic();
 });
 
 // --- Секретное слово ---
@@ -57,16 +193,12 @@ document.getElementById("musicBtn").addEventListener("click", () => {
   document.getElementById("main-buttons").classList.add("hidden");
   document.getElementById("musicPlayer").classList.remove("hidden");
   document.getElementById("backBtn").classList.remove("hidden");
-  // При переходе в раздел музыки, загружаем текущий трек (который уже установлен)
-  // и убеждаемся, что кнопка "play/pause" показывает правильное состояние
-  if (!audio.paused) {
-    playPauseBtn.textContent = "⏸";
-  } else {
-    playPauseBtn.textContent = "▶️";
-  }
+  
+  // Обновляем состояние кнопки play/pause
+  playPauseBtn.textContent = isPlaying ? "⏸" : "▶️";
 });
 
-// --- Кнопка «← Назад» ---
+// --- Кнопка «Назад» ---
 document.getElementById("backBtn").addEventListener("click", () => {
   vibrate();
   document.getElementById("main-buttons").classList.remove("hidden");
@@ -74,9 +206,9 @@ document.getElementById("backBtn").addEventListener("click", () => {
   document.getElementById("secret-message").style.display = "none";
   document.getElementById("musicPlayer").classList.add("hidden");
   document.getElementById("backBtn").classList.add("hidden");
-  stopMusic();
-  audio.pause(); // Останавливаем воспроизведение трека из плеера
-  playPauseBtn.textContent = "▶️"; // Сбрасываем иконку на "играть"
+  
+  pauseCurrentTrack();
+  stopBgMusic();
 });
 
 // --- Печать текста по буквам ---
@@ -94,98 +226,3 @@ function typeWriter(element, text, speed) {
   }
   type();
 }
-
-// --- Плеер: кнопки управления ---
-const audio = document.getElementById("audioPlayer");
-const playPauseBtn = document.getElementById("playPauseBtn");
-const musicTitle = document.querySelector(".music-title");
-
-// ВАЖНО: Убедитесь, что имена файлов в папке 'tracks' ТОЧНО соответствуют src здесь, включая расширения!
-// ДОБАВЛЕНО: cover: "default_cover.png" для каждого трека
-let tracks = [
-  { title: "The Way I See Things", src: "tracks/01 the way u see things.mp3", cover: "default_cover.png" },
-  { title: "OMG", src: "tracks/02 OMG.mp3", cover: "default_cover.png" },
-  { title: "The Song They Played (When I Crashed)", src: "tracks/03 The Song They Played (When I Crashed).mp3", cover: "default_cover.png" },
-  { title: "Nothing To Do", src: "tracks/04 Nothing To Do.mp3", cover: "default_cover.png" },
-  { title: "OM.Nomnom", src: "tracks/05 OM.Nomnom.mp3", cover: "default_cover.png" },
-  { title: "When I Lie (but the door slaps kinda)", src: "tracks/06 When I Lie (but the door slaps kinda).mp3", cover: "default_cover.png" },
-  { title: "Star Shopping", src: "tracks/07 Star Shopping.mp3", cover: "default_cover.png" },
-  { title: "Walk Away In The Door (demo F_ck)", src: "tracks/08 Walk Away In The Door (demo F_ck).mp3", cover: "default_cover.png" },
-  { title: "Absolute in Doubt", src: "tracks/09 Absolute in Doubt.mp3", cover: "default_cover.png" },
-  { title: "Hell Like", src: "tracks/10 Hell Like.mp3", cover: "default_cover.png" },
-  { title: "promised (unreleased)", src: "tracks/11 promised (unreleased).flac", cover: "default_cover.png" },
-  { title: "Still Alive (feat lido) (for a day)", src: "tracks/12 Still Alive (feat lido) (for a day).wav", cover: "default_cover.png" },
-  { title: "wxtd", src: "tracks/wxtd.mp3", cover: "default_cover.png" }
-];
-let currentTrack = 0;
-
-function loadTrack(index) {
-  const track = tracks[index];
-  audio.src = track.src;
-
-  // Используем jsmediatags для чтения ID3-тегов
-  jsmediatags.read(track.src, {
-    onSuccess: function(tag) {
-      const tags = tag.tags;
-      let displayTitle = tags.title || track.title; // Используем заголовок из ID3, если есть
-
-      if (tags.artist) {
-        displayTitle += " - " + tags.artist; // Добавляем исполнителя
-      }
-      musicTitle.textContent = "Трек: " + displayTitle;
-
-      // Обработка обложки альбома
-      if (tags.picture) {
-        const image = tags.picture;
-        let base64String = "";
-        for (let i = 0; i < image.data.length; i++) {
-          base64String += String.fromCharCode(image.data[i]);
-        }
-        const base64Url = "data:" + image.format + ";base64," + window.btoa(base64String);
-        document.querySelector(".music-cover").src = base64Url;
-      } else {
-        document.querySelector(".music-cover").src = "default_cover.png"; // Заглушка, если обложки нет
-      }
-    },
-    onError: function(error) {
-      console.error("Ошибка при чтении тегов для " + track.src + ":", error);
-      musicTitle.textContent = "Трек: " + track.title; // Используем название из массива при ошибке
-      document.querySelector(".music-cover").src = "default_cover.png"; // Используем заглушку при ошибке
-    }
-  });
-}
-
-// Загружаем первый трек при инициализации
-loadTrack(currentTrack);
-
-playPauseBtn.addEventListener("click", () => {
-  if (audio.paused) {
-    audio.play();
-    playPauseBtn.textContent = "⏸";
-  } else {
-    audio.pause();
-    playPauseBtn.textContent = "▶️";
-  }
-});
-
-document.getElementById("prevBtn").addEventListener("click", () => {
-  currentTrack = (currentTrack - 1 + tracks.length) % tracks.length;
-  loadTrack(currentTrack);
-  audio.play();
-  playPauseBtn.textContent = "⏸";
-});
-
-document.getElementById("nextBtn").addEventListener("click", () => {
-  currentTrack = (currentTrack + 1) % tracks.length;
-  loadTrack(currentTrack);
-  audio.play();
-  playPauseBtn.textContent = "⏸";
-});
-
-// Добавляем обработчик события 'ended' для автоматического перехода к следующему треку
-audio.addEventListener('ended', () => {
-  currentTrack = (currentTrack + 1) % tracks.length;
-  loadTrack(currentTrack);
-  audio.play();
-  playPauseBtn.textContent = "⏸";
-});
