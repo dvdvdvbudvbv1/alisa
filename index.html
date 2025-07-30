@@ -1,21 +1,21 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>С Днём Рождения, Алиса!</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="preload" href="fonts/Minecraftia-Regular.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="theme-color" content="#ff69b4">
+  <link rel="preload" href="fonts/Minecraftia-Regular.ttf" as="font" type="font/ttf" crossorigin />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="theme-color" content="#ff69b4" />
   <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.5/dist/jsmediatags.min.js"></script>
 </head>
 <body>
-  <audio id="bg-music" loop>
-    <source src="music.mp3" type="audio/mpeg">
+  <audio id="bg-music" preload="none" loop>
+    <source src="music.mp3" type="audio/mpeg" />
     Твой браузер не поддерживает аудио.
   </audio>
 
@@ -44,12 +44,18 @@
           <button id="playPauseBtn" class="back-btn">▶️</button>
           <button id="nextBtn" class="back-btn">⏭</button>
         </div>
-        <audio id="audioPlayer"></audio>
+        <audio id="audioPlayer" preload="none"></audio>
       </div>
     </div>
   </div>
 
+  <div id="audioPrompt" class="audio-prompt hidden">
+    Чтобы воспроизвести музыку, нажмите кнопку ниже:<br />
+    <button onclick="startAudio()">▶️ Включить</button>
+  </div>
+
   <button id="backBtn" class="hidden">← Назад</button>
+
   <script src="script.js"></script>
 </body>
 </html>
