@@ -9,19 +9,19 @@ const musicCover = document.querySelector(".music-cover");
 
 // Треки
 const tracks = [
-  { title: "The Way I See Things", src: "./tracks/01 the way u see things.mp3", cover: "./default_cover.png" },
-  { title: "OMG", src: "./tracks/02 OMG.mp3", cover: "./default_cover.png" },
-  { title: "The Song They Played (When I Crashed)", src: "./tracks/03 The Song They Played (When I Crashed).mp3", cover: "./default_cover.png" },
-  { title: "Nothing To Do", src: "./tracks/04 Nothing To Do.mp3", cover: "./default_cover.png" },
-  { title: "OM.Nomnom", src: "./tracks/05 OM.Nomnom.mp3", cover: "./default_cover.png" },
-  { title: "When I Lie (but the door slaps kinda)", src: "./tracks/06 When I Lie (but the door slaps kinda).mp3", cover: "./default_cover.png" },
-  { title: "Star Shopping", src: "./tracks/07 Star Shopping.mp3", cover: "./default_cover.png" },
-  { title: "Walk Away In The Door (demo F_ck)", src: "./tracks/08 Walk Away In The Door (demo F_ck).mp3", cover: "./default_cover.png" },
-  { title: "Absolute in Doubt", src: "./tracks/09 Absolute in Doubt.mp3", cover: "./default_cover.png" },
-  { title: "Hell Like", src: "./tracks/10 Hell Like.mp3", cover: "./default_cover.png" },
-  { title: "promised (unreleased)", src: "./tracks/11 promised (unreleased).flac", cover: "./default_cover.png" },
-  { title: "Still Alive (feat lido) (for a day)", src: "./tracks/12 Still Alive (feat lido) (for a day).wav", cover: "./default_cover.png" },
-  { title: "wxtd", src: "./tracks/wxtd.mp3", cover: "./default_cover.png" }
+  { title: "The Way I See Things", src: encodeURI("./tracks/01 the way u see things.mp3"), cover: "./default_cover.png" },
+  { title: "OMG", src: encodeURI("./tracks/02 OMG.mp3"), cover: "./default_cover.png" },
+  { title: "The Song They Played (When I Crashed)", src: encodeURI("./tracks/03 The Song They Played (When I Crashed).mp3"), cover: "./default_cover.png" },
+  { title: "Nothing To Do", src: encodeURI("./tracks/04 Nothing To Do.mp3"), cover: "./default_cover.png" },
+  { title: "OM.Nomnom", src: encodeURI("./tracks/05 OM.Nomnom.mp3"), cover: "./default_cover.png" },
+  { title: "When I Lie (but the door slaps kinda)", src: encodeURI("./tracks/06 When I Lie (but the door slaps kinda).mp3"), cover: "./default_cover.png" },
+  { title: "Star Shopping", src: encodeURI("./tracks/07 Star Shopping.mp3"), cover: "./default_cover.png" },
+  { title: "Walk Away In The Door (demo F_ck)", src: encodeURI("./tracks/08 Walk Away In The Door (demo F_ck).mp3"), cover: "./default_cover.png" },
+  { title: "Absolute in Doubt", src: encodeURI("./tracks/09 Absolute in Doubt.mp3"), cover: "./default_cover.png" },
+  { title: "Hell Like", src: encodeURI("./tracks/10 Hell Like.mp3"), cover: "./default_cover.png" },
+  { title: "promised (unreleased)", src: encodeURI("./tracks/11 promised (unreleased).flac"), cover: "./default_cover.png" },
+  { title: "Still Alive (feat lido) (for a day)", src: encodeURI("./tracks/12 Still Alive (feat lido) (for a day).wav"), cover: "./default_cover.png" },
+  { title: "wxtd", src: encodeURI("./tracks/wxtd.mp3"), cover: "./default_cover.png" }
 ];
 
 let currentTrack = 0;
