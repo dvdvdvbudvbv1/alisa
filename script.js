@@ -8,19 +8,15 @@ const musicTitle = document.querySelector(".music-title");
 const musicCover = document.querySelector(".music-cover");
 
 const tracks = [
-  { title: "The Way I See Things", src: "./tracks/01 the way u see things.mp3", cover: "./default_cover.png" },
-  { title: "OMG", src: "./tracks/02 OMG.mp3", cover: "./default_cover.png" },
-  { title: "The Song They Played (When I Crashed)", src: "./tracks/03 The Song They Played (When I Crashed).mp3", cover: "./default_cover.png" },
-  { title: "Nothing To Do", src: "./tracks/04 Nothing To Do.mp3", cover: "./default_cover.png" },
-  { title: "OM.Nomnom", src: "./tracks/05 OM.Nomnom.mp3", cover: "./default_cover.png" },
-  { title: "When I Lie (but the door slaps kinda)", src: "./tracks/06 When I Lie (but the door slaps kinda).mp3", cover: "./default_cover.png" },
-  { title: "Star Shopping", src: "./tracks/07 Star Shopping.mp3", cover: "./default_cover.png" },
-  { title: "Walk Away In The Door (demo F_ck)", src: "./tracks/08 Walk Away In The Door (demo F_ck).mp3", cover: "./default_cover.png" },
-  { title: "Absolute in Doubt", src: "./tracks/09 Absolute in Doubt.mp3", cover: "./default_cover.png" },
-  { title: "Hell Like", src: "./tracks/10 Hell Like.mp3", cover: "./default_cover.png" },
-  { title: "promised (unreleased)", src: "./tracks/11 promised (unreleased).flac", cover: "./default_cover.png" },
-  { title: "Still Alive (feat lido) (for a day)", src: "./tracks/12 Still Alive (feat lido) (for a day).wav", cover: "./default_cover.png" },
-  { title: "wxtd", src: "./tracks/wxtd.mp3", cover: "./default_cover.png" }
+  { title: "OMFG", src: "./tracks/OMFG.mp3", cover: "./default_cover.png" },
+  { title: "Star Shopping", src: "./tracks/Star Shopping.mp3", cover: "./default_cover.png" },
+  { title: "The Song They Played When I Crashed", src: "./tracks/The Song They Played When I Crashed.mp3", cover: "./default_cover.png" },
+  { title: "Walk Away as the Door Slams (feat. Lil Tracy)", src: "./tracks/Walk Away as the Door Slams (feat. Lil Tracy).mp3", cover: "./default_cover.png" },
+  { title: "i feel like", src: "./tracks/i feel like.mp3", cover: "./default_cover.png" },
+  { title: "nothing to u", src: "./tracks/nothing to u.flac", cover: "./default_cover.png" },
+  { title: "princess (unmastered)", src: "./tracks/princess (unmastered).mp3", cover: "./default_cover.png" },
+  { title: "the way i see things", src: "./tracks/the way i see things.flac", cover: "./default_cover.png" },
+  { title: "weird", src: "./tracks/weird.mp3", cover: "./default_cover.png" }
 ];
 
 let currentTrack = 0;
