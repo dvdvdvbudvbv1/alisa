@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'alisa-birthday-pwa-v10'; // Увеличена версия кэша для гарантированного обновления
+const CACHE_NAME = 'alisa-birthday-pwa-v11'; // Увеличена версия кэша
 const urlsToCache = [
   './',
   './index.html',
@@ -11,10 +11,23 @@ const urlsToCache = [
   './icons/icon-512x512.png',
   './IMG_0020.gif',
   './IMG_0023.webp',
-  './default_cover.png' // Убеждаемся, что обложка кэшируется
+  './default_cover.png',
+  // Добавляем все треки
+  './tracks/01 the way u see things.mp3',
+  './tracks/02 OMG.mp3',
+  './tracks/03 The Song They Played (When I Crashed).mp3',
+  './tracks/04 Nothing To Do.mp3',
+  './tracks/05 OM.Nomnom.mp3',
+  './tracks/06 When I Lie (but the door slaps kinda).mp3',
+  './tracks/07 Star Shopping.mp3',
+  './tracks/08 Walk Away In The Door (demo F_ck).mp3',
+  './tracks/09 Absolute in Doubt.mp3',
+  './tracks/10 Hell Like.mp3',
+  './tracks/11 promised (unreleased).flac',
+  './tracks/12 Still Alive (feat lido) (for a day).wav',
+  './tracks/wxtd.mp3'
 ];
 
-// Установка сервис-воркера и кэширование статических ресурсов
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -28,20 +41,15 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Перехват запросов и отдача из кэша, если доступно
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Кэш найден, возвращаем ресурс из кэша
         if (response) {
           return response;
         }
-        // Кэш не найден, делаем запрос к сети
         return fetch(event.request)
           .then((networkResponse) => {
-            // Если запрос успешен, кэшируем новый ресурс
-            // Проверяем, что запрос действителен и не является запросом расширения
             if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
               return networkResponse;
             }
@@ -54,13 +62,11 @@ self.addEventListener('fetch', (event) => {
           });
       })
       .catch(() => {
-        // В случае ошибки сети или отсутствия кэша
-        console.log('Network request failed and no cache match. Consider adding an offline page.');
+        return caches.match('./index.html');
       })
   );
 });
 
-// Активация сервис-воркера и удаление старых кэшей
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
