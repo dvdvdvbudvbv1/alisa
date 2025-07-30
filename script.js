@@ -1,4 +1,4 @@
-// Аудио элементы
+// --- Аудио элементы ---
 const bgMusic = document.getElementById("bg-music");
 const audioPlayer = document.getElementById("audioPlayer");
 const playPauseBtn = document.getElementById("playPauseBtn");
@@ -7,7 +7,7 @@ const nextBtn = document.getElementById("nextBtn");
 const musicTitle = document.querySelector(".music-title");
 const musicCover = document.querySelector(".music-cover");
 
-// Треки
+// --- Треки ---
 const tracks = [
   { title: "The Way I See Things", src: encodeURI("./tracks/01 the way u see things.mp3"), cover: "./default_cover.png" },
   { title: "OMG", src: encodeURI("./tracks/02 OMG.mp3"), cover: "./default_cover.png" },
@@ -27,81 +27,67 @@ const tracks = [
 let currentTrack = 0;
 let isPlaying = false;
 
-// Инициализация аудио
+// --- Инициализация ---
 function initAudio() {
-  // Настройка аудио элементов
-  audioPlayer.preload = "auto";
-  bgMusic.preload = "auto";
-  
-  // Обработчики ошибок
-  audioPlayer.addEventListener('error', (e) => {
+  audioPlayer.preload = "none";
+  bgMusic.preload = "none";
+
+  audioPlayer.addEventListener("error", (e) => {
     console.error("Audio Player Error:", e);
     musicTitle.textContent = "Ошибка загрузки трека";
     setTimeout(playNextTrack, 2000);
   });
 
-  bgMusic.addEventListener('error', (e) => {
+  bgMusic.addEventListener("error", (e) => {
     console.error("Background Music Error:", e);
   });
 
-  // Загрузка первого трека
   loadTrack(currentTrack);
 }
 
-// Загрузка трека
+// --- Загрузка трека ---
 function loadTrack(index) {
   const track = tracks[index];
-  console.log("Loading track:", track.src);
+  audioPlayer.src = track.src;
+  musicTitle.textContent = track.title;
+  musicCover.src = track.cover;
 
-  // Проверка доступности трека
   fetch(track.src)
-    .then(response => {
-      if (!response.ok) throw new Error("Track not found");
-      
-      audioPlayer.src = track.src;
-      musicTitle.textContent = track.title;
-      musicCover.src = track.cover;
-
-      // Попытка чтения метаданных
-      jsmediatags.read(track.src, {
+    .then(res => {
+      if (!res.ok) throw new Error("Файл не найден");
+      return res.blob();
+    })
+    .then(blob => {
+      jsmediatags.read(blob, {
         onSuccess: function(tag) {
           const tags = tag.tags;
           if (tags.title) musicTitle.textContent = tags.title;
           if (tags.artist) musicTitle.textContent += ` - ${tags.artist}`;
-          
           if (tags.picture) {
             const base64String = btoa(String.fromCharCode(...tags.picture.data));
             musicCover.src = `data:${tags.picture.format};base64,${base64String}`;
           }
         },
-        onError: () => console.log("No metadata found")
+        onError: () => console.log("Нет метаданных")
       });
 
       if (isPlaying) {
-        audioPlayer.play().catch(e => console.error("Play error:", e));
+        audioPlayer.play().catch(handlePlayError);
       }
     })
-    .catch(error => {
-      console.error("Track load error:", error);
+    .catch(err => {
+      console.error("Ошибка загрузки:", err);
       playNextTrack();
     });
 }
 
-// Управление воспроизведением
+// --- Воспроизведение и пауза ---
 function playCurrentTrack() {
-  audioPlayer.play()
-    .then(() => {
-      isPlaying = true;
-      playPauseBtn.textContent = "⏸";
-      stopBgMusic();
-    })
-    .catch(e => {
-      console.error("Play failed:", e);
-      // Показать кнопку активации аудио
-      if (e.name === 'NotAllowedError') {
-        musicTitle.textContent = "Нажмите '▶️' для активации";
-      }
-    });
+  audioPlayer.play().then(() => {
+    isPlaying = true;
+    playPauseBtn.textContent = "⏸";
+    stopBgMusic();
+  }).catch(handlePlayError);
 }
 
 function pauseCurrentTrack() {
@@ -110,23 +96,25 @@ function pauseCurrentTrack() {
   playPauseBtn.textContent = "▶️";
 }
 
+function handlePlayError(e) {
+  console.error("Play failed:", e);
+  if (e.name === 'NotAllowedError') showAudioPrompt();
+}
+
+// --- Следующий / предыдущий трек ---
 function playNextTrack() {
   currentTrack = (currentTrack + 1) % tracks.length;
   loadTrack(currentTrack);
-  if (isPlaying) playCurrentTrack();
 }
 
 function playPrevTrack() {
   currentTrack = (currentTrack - 1 + tracks.length) % tracks.length;
   loadTrack(currentTrack);
-  if (isPlaying) playCurrentTrack();
 }
 
-// Фоновая музыка
+// --- Фоновая музыка ---
 function playBgMusic() {
-  bgMusic.play()
-    .then(() => console.log("Background music playing"))
-    .catch(e => console.error("BG music play error:", e));
+  bgMusic.play().then(() => console.log("Фоновая музыка включена")).catch(console.error);
 }
 
 function stopBgMusic() {
@@ -134,23 +122,50 @@ function stopBgMusic() {
   bgMusic.currentTime = 0;
 }
 
-// Вибрация
+// --- Вибрация ---
 function vibrate(duration = 100) {
   if ('vibrate' in navigator) navigator.vibrate(duration);
 }
 
-// Инициализация при загрузке
-document.addEventListener('DOMContentLoaded', () => {
+// --- Печать текста по буквам ---
+function typeWriter(element, text, speed) {
+  let i = 0;
+  element.innerHTML = "";
+  const fullText = text.replace(/<br>/g, '\n');
+
+  function type() {
+    if (i < fullText.length) {
+      element.innerHTML += (fullText.charAt(i) === '\n' ? '<br>' : fullText.charAt(i));
+      i++;
+      setTimeout(type, speed);
+    }
+  }
+  type();
+}
+
+// --- Активация звука вручную ---
+function showAudioPrompt() {
+  const prompt = document.getElementById("audioPrompt");
+  if (prompt) prompt.classList.remove("hidden");
+}
+
+function startAudio() {
+  audioPlayer.play().catch(console.error);
+  bgMusic.play().catch(console.error);
+  const prompt = document.getElementById("audioPrompt");
+  if (prompt) prompt.classList.add("hidden");
+}
+
+// --- DOM Загрузка ---
+document.addEventListener("DOMContentLoaded", () => {
   initAudio();
-  
-  // Разблокировка аудио по первому клику
-  document.body.addEventListener('click', () => {
+  document.body.addEventListener("click", () => {
     audioPlayer.play().then(() => audioPlayer.pause());
     bgMusic.play().then(() => bgMusic.pause());
   }, { once: true });
 });
 
-// Обработчики кнопок
+// --- Обработчики кнопок ---
 playPauseBtn.addEventListener("click", () => {
   vibrate();
   isPlaying ? pauseCurrentTrack() : playCurrentTrack();
@@ -166,11 +181,8 @@ nextBtn.addEventListener("click", () => {
   playNextTrack();
 });
 
-audioPlayer.addEventListener('ended', playNextTrack);
+audioPlayer.addEventListener("ended", playNextTrack);
 
-// Остальные обработчики (поздравление, секретное слово и т.д.) остаются без изменений
-// ... (код из предыдущего ответа)
-// --- Кнопка «Открыть поздравление» ---
 document.getElementById("openBtn").addEventListener("click", () => {
   vibrate();
   document.getElementById("main-buttons").classList.add("hidden");
@@ -189,7 +201,6 @@ document.getElementById("openBtn").addEventListener("click", () => {
   playBgMusic();
 });
 
-// --- Секретное слово ---
 document.getElementById("check-secret").addEventListener("click", () => {
   vibrate();
   const value = document.getElementById("secret-input").value.trim().toLowerCase();
@@ -206,18 +217,14 @@ document.getElementById("check-secret").addEventListener("click", () => {
   }
 });
 
-// --- Кнопка «Музыка» ---
 document.getElementById("musicBtn").addEventListener("click", () => {
   vibrate();
   document.getElementById("main-buttons").classList.add("hidden");
   document.getElementById("musicPlayer").classList.remove("hidden");
   document.getElementById("backBtn").classList.remove("hidden");
-  
-  // Обновляем состояние кнопки play/pause
   playPauseBtn.textContent = isPlaying ? "⏸" : "▶️";
 });
 
-// --- Кнопка «Назад» ---
 document.getElementById("backBtn").addEventListener("click", () => {
   vibrate();
   document.getElementById("main-buttons").classList.remove("hidden");
@@ -225,23 +232,6 @@ document.getElementById("backBtn").addEventListener("click", () => {
   document.getElementById("secret-message").style.display = "none";
   document.getElementById("musicPlayer").classList.add("hidden");
   document.getElementById("backBtn").classList.add("hidden");
-  
   pauseCurrentTrack();
   stopBgMusic();
 });
-
-// --- Печать текста по буквам ---
-function typeWriter(element, text, speed) {
-  let i = 0;
-  element.innerHTML = "";
-  const fullText = text.replace(/<br>/g, '\n');
-
-  function type() {
-    if (i < fullText.length) {
-      element.innerHTML += (fullText.charAt(i) === '\n' ? '<br>' : fullText.charAt(i));
-      i++;
-      setTimeout(type, speed);
-    }
-  }
-  type();
-}
