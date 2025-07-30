@@ -99,7 +99,7 @@ h1 {
   width: 100%;
 }
 
-/* --- Общий стиль для всех кнопок и input'ов --- */
+/* Главное — кнопки одного размера */
 .main-btn, .back-btn, #secret-input {
   font-family: 'Minecraftia', sans-serif !important;
   background: #fff !important;
@@ -108,16 +108,18 @@ h1 {
   border-radius: 25px !important;
   cursor: pointer !important;
   transition: transform .3s !important;
-  padding: 0 20px !important;
+  padding: 14px 20px !important;
   font-size: 1em !important;
   margin: 10px auto !important;
   width: 240px !important;
-  height: 50px !important;
+  min-height: 50px !important;
   box-sizing: border-box !important;
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
-  text-shadow: 0.5px 0.5px 1px rgba(255, 255, 255, 0.5);
+  white-space: normal !important;
+  text-align: center !important;
+  line-height: 1.2;
 }
 
 .main-btn:hover, .back-btn:hover {
