@@ -110,7 +110,7 @@ h1 {
   cursor: pointer !important;
   transition: transform .3s !important;
   padding: 14px 20px !important;
-  font-size: 1em !important;
+  font-size: 0.9em !important; /* Уменьшаем размер шрифта здесь */
   margin: 10px auto !important;
   width: 240px !important;
   height: 50px !important;
