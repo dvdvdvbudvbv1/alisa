@@ -1,16 +1,23 @@
 // Аудио элементы
 const bgMusic = document.getElementById("bg-music");
-// Note: audioPlayer, playPauseBtn, prevBtn, nextBtn, musicTitle, musicCover are not present in index.html for the provided snippet,
-// so their functionality will not be active or will cause errors if elements are missing.
-// Assuming these are part of a larger application not fully provided.
-// For this specific issue (text corruption), these are not directly relevant.
-// Removed them from this solution for clarity, but keep them in your full code if needed.
-
+// Аудио плеер и его элементы закомментированы, так как их нет в вашем index.html.
+// Если вы добавите их позже, раскомментируйте и реализуйте соответствующую логику.
+// const audioPlayer = document.getElementById("audioPlayer");
+// const playPauseBtn = document.getElementById("playPauseBtn");
+// const prevBtn = document.getElementById("prevBtn");
+// const nextBtn = document.getElementById("nextBtn");
+// const musicTitle = document.querySelector(".music-title");
+// const musicCover = document.querySelector(".music-cover");
 
 // --- Функции для эффектов ---
 
 // Взрыв конфетти
 function launchConfetti() {
+  // Проверяем, что библиотека confetti загружена
+  if (typeof confetti === 'undefined') {
+    console.warn("Confetti library not loaded. Make sure confetti.browser.min.js is included.");
+    return;
+  }
   const myConfetti = confetti.create(document.getElementById('confetti-canvas'), {
     resize: true,
     useWorker: true
@@ -65,7 +72,7 @@ function stopFallingItems() {
   document.querySelectorAll('.falling-item').forEach(item => item.remove());
 }
 
-// Placeholder for music functions, as they are not fully provided in the HTML/CSS
+// Функции для фоновой музыки
 function playBgMusic() {
   if (bgMusic) {
     bgMusic.play().catch(e => console.error("Error playing background music:", e));
@@ -79,13 +86,10 @@ function stopBgMusic() {
   }
 }
 
+// Заглушка для функции паузы трека плеера (если плеер отсутствует)
 function pauseCurrentTrack() {
-  // Assuming audioPlayer exists in your full code
-  // if (audioPlayer) {
-  //   audioPlayer.pause();
-  //   isPlaying = false;
-  //   if (playPauseBtn) playPauseBtn.textContent = "▶️";
-  // }
+  // Если у вас появится аудиоплеер, здесь будет логика его паузы.
+  // Например: if (audioPlayer) audioPlayer.pause();
 }
 
 
@@ -95,7 +99,7 @@ const BIRTHDAY_DAY = 19; // 19 число
 
 
 // --- Массив с разными вариантами поздравлений ---
-// Changed to use plain text and let typeWriter handle line breaks (or just set innerHTML directly for simplicity)
+// Используем '\n' для переносов строк, чтобы typeWriter и white-space: pre-wrap; работали корректно.
 const greetings = [
   `Дорогая Алиса!\n\n
 С Днём Рождения тебя, солнце ☀️\n
@@ -163,27 +167,28 @@ document.getElementById("openBtn").addEventListener("click", () => {
   if (today < nextBirthday) { // Проверяем, наступил ли уже День Рождения
     // Если сегодня раньше Дня Рождения
     const remainingDays = Math.ceil((nextBirthday.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    // Здесь используем <br> напрямую, т.к. это статичный HTML, не для typeWriter.
+    // Обернул текст в <span>, чтобы стили P из CSS применялись, а не переопределялись.
     messageParagraph.innerHTML = `
-      <p style="font-size: 1.2em; line-height: 1.5; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">
+      <span style="font-size: 1.2em; line-height: 1.5; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">
         Ой, ты сюда попал слишком рано!<br>
         Возвращайся в День Рождения Алисы!<br><br>
-        Осталось ${remainingDays} дней... 
-        🤫
-      </p>
+        Осталось ${remainingDays} дней... 🤫
+      </span>
     `;
     stopBgMusic();
     stopFallingItems();
-    pauseCurrentTrack(); // Останавим музыку плеера, если она играет
+    pauseCurrentTrack();
   } else {
     // Если сегодня День Рождения или уже после (т.е. заглушка не нужна)
     const randomIndex = Math.floor(Math.random() * greetings.length);
     const selectedGreeting = greetings[randomIndex];
-    // Use the updated typeWriter which handles plain text with \n
+    // Используем typeWriter, который теперь корректно обрабатывает \n
     typeWriter(messageParagraph, selectedGreeting, 50);
     playBgMusic();
     launchConfetti();
     startFallingItems();
-    pauseCurrentTrack(); // Останавим музыку плеера, если она играет
+    pauseCurrentTrack();
   }
 });
 
@@ -209,24 +214,31 @@ document.getElementById("check-secret").addEventListener("click", () => {
   } else {
     div.innerHTML = "😅 Неверное слово. Попробуй снова!";
   }
-  stopBgMusic(); // Останавим фоновую музыку, если она играет
-  stopFallingItems(); // Останавливаем эффекты, если случайно запустились
-  pauseCurrentTrack(); // Останавим музыку плеера, если она играет
+  stopBgMusic();
+  stopFallingItems();
+  pauseCurrentTrack();
 });
 
 // --- Кнопка «Музыка» ---
-// Placeholder if you add these buttons in index.html
-// document.getElementById("musicBtn").addEventListener("click", () => {
-//   vibrate();
-//   document.getElementById("main-buttons").classList.add("hidden");
-//   document.getElementById("musicPlayer").classList.remove("hidden");
-//   document.getElementById("backBtn").classList.remove("hidden");
-  
-//   // Обновляем состояние кнопки play/pause
-//   // playPauseBtn.textContent = isPlaying ? "⏸" : "▶️";
-//   stopBgMusic(); // Останавим фоновую музыку при открытии плеера
-//   stopFallingItems(); // Останавливаем эффекты, если случайно запустились
-// });
+// Эта секция закомментирована, так как HTML-элементы для неё отсутствуют в предоставленном index.html.
+// Если вы добавите их, раскомментируйте этот блок и реализуйте нужную логику.
+/*
+if (document.getElementById("musicBtn")) {
+  document.getElementById("musicBtn").addEventListener("click", () => {
+    vibrate();
+    document.getElementById("main-buttons").classList.add("hidden");
+    if (document.getElementById("musicPlayer")) {
+      document.getElementById("musicPlayer").classList.remove("hidden");
+    }
+    document.getElementById("backBtn").classList.remove("hidden");
+    
+    // Обновляем состояние кнопки play/pause, если она есть
+    // if (playPauseBtn) playPauseBtn.textContent = isPlaying ? "⏸" : "▶️";
+    stopBgMusic(); // Останавливаем фоновую музыку при открытии плеера
+    stopFallingItems(); // Останавливаем эффекты, если случайно запустились
+  });
+}
+*/
 
 
 // --- Кнопка «Назад» ---
@@ -235,10 +247,13 @@ document.getElementById("backBtn").addEventListener("click", () => {
   document.getElementById("main-buttons").classList.remove("hidden");
   document.getElementById("mainMessage").classList.remove("show");
   document.getElementById("secret-message").style.display = "none";
-  // document.getElementById("musicPlayer").classList.add("hidden"); // Uncomment if you add musicPlayer
+  // Если у вас есть musicPlayer, раскомментируйте эту строку:
+  // if (document.getElementById("musicPlayer")) {
+  //   document.getElementById("musicPlayer").classList.add("hidden");
+  // }
   document.getElementById("backBtn").classList.add("hidden");
   
-  pauseCurrentTrack(); // Will only work if audioPlayer exists
+  pauseCurrentTrack(); 
   stopBgMusic();
   stopFallingItems(); // Останавливаем падающие элементы при возврате
 
@@ -262,7 +277,8 @@ function typeWriter(element, text, speed) {
 
   element.innerHTML = ""; // Ensure the element is completely empty before starting
   let i = 0;
-  const chars = text.split(''); // Convert text to an array of characters for easier iteration
+  // text.split('') уже достаточно, т.к. greetings теперь с '\n'
+  const chars = text.split(''); 
 
   function type() {
     if (i < chars.length) {
@@ -280,20 +296,42 @@ function typeWriter(element, text, speed) {
 
 // --- Инициализация при загрузке ---
 document.addEventListener('DOMContentLoaded', () => {
-  // initAudio(); // Removed as audioPlayer related elements are not in the provided index.html
+  // initAudio(); // Закомментировано, т.к. audioPlayer не определен в предоставленном коде.
   
   // Разблокировка аудио по первому клику
   document.body.addEventListener('click', () => {
+    // Если у вас появится audioPlayer, раскомментируйте эту строку:
     // if (audioPlayer) audioPlayer.play().then(() => audioPlayer.pause()).catch(e => console.warn("Audio activation failed:", e));
     if (bgMusic) bgMusic.play().then(() => bgMusic.pause()).catch(e => console.warn("Background audio activation failed:", e));
   }, { once: true });
+
+  // Обработчики для кнопок плеера (закомментированы, если их нет в HTML)
+  /*
+  if (playPauseBtn) {
+    playPauseBtn.addEventListener("click", () => {
+      vibrate();
+      isPlaying ? pauseCurrentTrack() : playCurrentTrack();
+    });
+  }
+  if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+      vibrate();
+      playPrevTrack();
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      vibrate();
+      playNextTrack();
+    });
+  }
+  if (audioPlayer) {
+    audioPlayer.addEventListener('ended', playNextTrack);
+  }
+  */
 });
 
-// Vibraion function (keep it)
+// Функция вибрации
 function vibrate(duration = 100) {
     if ('vibrate' in navigator) navigator.vibrate(duration);
 }
-
-// NOTE: Audio player related event listeners (playPauseBtn, prevBtn, nextBtn, audioPlayer.addEventListener('ended'))
-// are commented out or not included as the necessary HTML elements for them were not in your provided index.html.
-// Please ensure you have those elements in your index.html if you want the audio player to function.
