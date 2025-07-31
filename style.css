@@ -18,6 +18,8 @@ body {
   justify-content: center;
   text-align: center;
   overflow: hidden;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 #main-buttons,
@@ -28,15 +30,23 @@ body {
   margin: 10px;
 }
 
+/* Универсальный стиль кнопок */
 button {
   font-family: 'Minecraftia', sans-serif;
   font-size: 16px;
-  padding: 10px 20px;
-  margin: 5px;
+  padding: 12px 24px;
+  margin: 10px;
+  min-width: 220px;
+  max-width: 90vw;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: center;
   background: #fff;
   border: 2px solid #000;
+  border-radius: 6px;
   cursor: pointer;
   transition: transform 0.1s ease-in-out;
+  box-sizing: border-box;
 }
 
 button:hover {
@@ -52,8 +62,12 @@ button:hover {
 }
 
 #secret-input {
-  padding: 5px;
+  padding: 10px;
   font-family: 'Minecraftia', sans-serif;
   font-size: 14px;
   border: 2px solid #000;
+  border-radius: 4px;
+  width: 220px;
+  max-width: 90vw;
+  box-sizing: border-box;
 }
