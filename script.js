@@ -40,7 +40,8 @@ const fallingItems = ['❤️', '🌸'];
 let fallingInterval;
 
 function startFallingItems() {
-  stopFallingItems();
+  // Останавливаем предыдущий интервал, если он есть, чтобы избежать множественных запусков
+  stopFallingItems(); 
   fallingInterval = setInterval(() => {
     const item = document.createElement('div');
     item.classList.add('falling-item');
@@ -157,14 +158,10 @@ document.getElementById("openBtn").addEventListener("click", () => {
     messageParagraph.innerHTML = ""; // Ensure the paragraph is truly empty
 
     // Заглушка для текста - теперь она тоже печатается плавно
-    const fallbackText = `
-      <span style="font-size: 0.85em; line-height: 1.5; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">
-        Ой, ты сюда попала слишком рано!<br>
-        Возвращайся в День Рождения Алисы!<br><br>
-        Осталось ${remainingDays} дней... 🤫
-      </span>
-    `;
-    typeWriter(messageParagraph, fallbackText, 50); // Используем typeWriter для плавной печати заглушки
+    // Важно: textContent не интерпретирует HTML. Для HTML нужно использовать innerHTML после typeWriter.
+    // А для typeWriter передавать чистый текст с \n.
+    const fallbackText = `Ой, ты сюда попала слишком рано!\nВозвращайся в День Рождения Алисы!\n\nОсталось ${remainingDays} дней... 🤫`;
+    typeWriter(messageParagraph, fallbackText, 50);
 
     stopBgMusic();
     stopFallingItems();
@@ -241,17 +238,17 @@ function typeWriter(element, text, speed) {
 
   element.innerHTML = ""; // Ensure the element is completely empty before starting
   let i = 0;
-  // text.split('') теперь обрабатывает как обычный текст, а \n будет заменен на <br>
+  // Используем split('') для разбивки текста на символы, \n будет обрабатываться ниже
   const chars = text.split(''); 
 
   function type() {
     if (i < chars.length) {
-      // Replace '\n' with '<br>' directly as we iterate through plain characters
+      // Заменяем '\n' на '<br>' непосредственно при добавлении символов
       element.innerHTML += (chars[i] === '\n' ? '<br>' : chars[i]);
       i++;
       typeWriterTimeout = setTimeout(type, speed);
     } else {
-      typeWriterTimeout = null; // Clear timeout when typing is complete
+      typeWriterTimeout = null; // Очищаем таймаут, когда печать завершена
     }
   }
   type();
@@ -260,7 +257,6 @@ function typeWriter(element, text, speed) {
 
 // --- Инициализация при загрузке ---
 document.addEventListener('DOMContentLoaded', () => {
-  
   // Проверяем дату при загрузке страницы и устанавливаем заголовок
   const today = new Date();
   const currentYear = today.getFullYear();
@@ -269,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
   birthdayThisYear.setHours(0, 0, 0, 0);
 
   let nextBirthdayYear = currentYear;
-  if (today > birthdayThisYear) {
+  if (today.getTime() > birthdayThisYear.getTime()) { // Сравниваем getTime() для точности
       nextBirthdayYear = currentYear + 1;
   }
   const nextBirthday = new Date(nextBirthdayYear, BIRTHDAY_MONTH, BIRTHDAY_DAY);
@@ -278,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (today.getTime() === birthdayThisYear.getTime()) { // Сегодня День Рождения
       isBirthdayToday = true;
       document.title = "С Днём Рождения, Алиса!";
-  } else if (today < nextBirthday) { // День Рождения еще не наступил
+  } else if (today.getTime() < nextBirthday.getTime()) { // День Рождения еще не наступил
       isBirthdayToday = false;
       document.title = "Скоро День Рождения Алисы!";
   } else { // День Рождения уже прошел в этом году (и не сегодня)
