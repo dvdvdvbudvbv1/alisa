@@ -11,7 +11,7 @@ html, body {
 
 body {
   font-family: 'Minecraftia', sans-serif;
-  background: linear-gradient(135deg, #ffc0cb, #d8bfd8, #a8f0ff);
+  background: linear-gradient(135deg, #ffc0cb, #d8bfd8, #a8f0ff #ababab, #f0cef7);
   background-size: 800% 800%;
   animation: seamlessColorCycle 30s ease infinite;
   overflow: hidden;
