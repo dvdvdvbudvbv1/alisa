@@ -89,7 +89,7 @@ function stopBgMusic() {
 // Заглушка для функции паузы трека плеера (если плеер отсутствует)
 function pauseCurrentTrack() {
   // Если у вас появится аудиоплеер, здесь будет логика его паузы.
-  // Например: if (audioPlayer) audioPlayer.pause();
+  // Например: // if (audioPlayer) audioPlayer.pause();
 }
 
 
@@ -168,11 +168,12 @@ document.getElementById("openBtn").addEventListener("click", () => {
     // Если сегодня раньше Дня Рождения
     const remainingDays = Math.ceil((nextBirthday.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     // Здесь используем <br> напрямую, т.к. это статичный HTML, не для typeWriter.
-    // Обернул текст в <span>, чтобы стили P из CSS применялись, а не переопределялись.
+    // Обернул текст в <span>, чтобы стили P из CSS применялись, а не переопределялись,
+    // а также установил font-size 0.85em для соответствия кнопкам.
     messageParagraph.innerHTML = `
-      <span style="font-size: 1.2em; line-height: 1.5; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">
+      <span style="font-size: 0.85em; line-height: 1.5; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">
         Ой, ты сюда попала слишком рано!<br>
-        Осталось ${remainingDays} дней...
+        Осталось ${remainingDays} дней 
       </span>
     `;
     stopBgMusic();
