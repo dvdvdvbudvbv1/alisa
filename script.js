@@ -167,7 +167,8 @@ document.getElementById("openBtn").addEventListener("click", () => {
       <p style="font-size: 1.2em; line-height: 1.5; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">
         Ой, ты сюда попал слишком рано!<br>
         Возвращайся в День Рождения Алисы!<br><br>
-        Осталось ${remainingDays} дней... 🤫 .
+        Осталось ${remainingDays} дней... 
+        🤫
       </p>
     `;
     stopBgMusic();
