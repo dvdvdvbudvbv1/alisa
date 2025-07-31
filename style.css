@@ -11,41 +11,29 @@ html, body {
 
 body {
   font-family: 'Minecraftia', sans-serif;
-  background: linear-gradient(135deg, #ff69b4, #da70d6, #87ceeb, #ffb6c1, #add8e6, #e6e6fa); /* Измененные и новые цвета */
+  /* Используем один из ваших градиентов, например: */
+  background: linear-gradient(135deg, #ffc0cb, #d8bfd8, #a8f0ff, #ffe0f0, #c0f0ff, #f0e0ff);
   background-size: 800% 800%;
   animation: seamlessColorCycle 30s ease infinite;
-  overflow: hidden;
+  /* УДАЛЯЕМ: overflow: hidden; Это главная причина обрезания контента */
   color: #fff;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
   position: relative;
 }
 
-
-@keyframes seamlessColorCycle {
-  0% { background-position: 0% 50%; }
-  25% { background-position: 100% 75%; }
-  50% { background-position: 0% 100%; }
-  75% { background-position: 75% 0%; }
-  100% { background-position: 0% 50%; }
-}
-
-#confetti-canvas { /* Стили для канваса конфетти */
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 999; /* Чтобы было поверх всего */
-  pointer-events: none; /* Чтобы не блокировать события мыши */
-}
-
+/* Добавляем прокрутку для основного содержимого */
 #main-content-wrapper {
   position: relative;
   width: 100%;
-  height: 100%;
-  overflow-y: auto;
+  min-height: 100vh; /* Минимальная высота, чтобы обертка была не меньше высоты viewport */
+  overflow-y: auto; /* Позволяем прокрутку, если контента много */
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 50px;
+  padding-bottom: 50px; /* Добавляем отступ снизу, чтобы контент не упирался в нижний край, можно увеличить */
+  box-sizing: border-box; /* Важно для padding-bottom, чтобы не добавлял высоту */
+  display: flex; /* Используем flexbox для центрирования и адаптивности */
+  flex-direction: column;
+  justify-content: center; /* Центрируем контент по вертикали, если его мало */
+  align-items: center; /* Центрируем контент по горизонтали */
 }
 
 .container {
@@ -53,6 +41,10 @@ body {
   padding: 30px;
   z-index: 2;
   position: relative;
+  /* Добавляем max-width, чтобы текст не растягивался на всю ширину на больших экранах */
+  max-width: 600px;
+  width: 90%; /* Адаптивность для мобильных */
+  margin: auto; /* Центрируем контейнер */
 }
 
 .karina-img {
@@ -88,16 +80,47 @@ h1 {
 }
 
 .message p {
-  overflow: hidden;
-  white-space: normal;
+  overflow-wrap: break-word; /* Позволяет длинным словам переноситься */
+  word-wrap: break-word; /* Для старых браузеров */
+  white-space: pre-wrap; /* Сохраняет переводы строк и пробелы из текста, как в <pre> */
   margin: 0 auto;
   padding: 0 10px;
-  max-width: fit-content;
+  /* max-width: fit-content;  -- Это может вызывать проблемы с шириной. Лучше убрать. */
   font-size: 1.1em;
-  line-height: 1.6;
+  line-height: 1.6; /* Увеличьте, если эмодзи слишком близко */
   text-align: center;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+
+  /* Эмодзи: сбрасываем family, чтобы браузер использовал системные эмодзи-шрифты */
+  font-family: 'Minecraftia', "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", "Apple Color Emoji", sans-serif;
 }
+
+/* Дополнительные стили для эмодзи (могут помочь) */
+.message p::before, .message p::after {
+  content: none; /* Убедитесь, что нет никаких псевдоэлементов, влияющих на размер */
+}
+
+/* ... остальной CSS без изменений ... */
+
+@keyframes seamlessColorCycle {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 100% 75%; }
+  50% { background-position: 0% 100%; }
+  75% { background-position: 75% 0%; }
+  100% { background-position: 0% 50%; }
+}
+
+#confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  pointer-events: none;
+}
+
+/* main-content-wrapper уже изменили выше */
 
 .button-group {
   display: flex;
@@ -175,14 +198,13 @@ h1 {
 /* Стили для падающих элементов */
 .falling-item {
   position: absolute;
-  top: -50px; /* Начинаем за пределами экрана */
+  top: -50px;
   opacity: 0;
   animation: fall linear forwards;
-  pointer-events: none; /* Чтобы не мешали взаимодействию */
-  z-index: 998; /* Под канвасом конфетти */
+  pointer-events: none;
+  z-index: 998;
 }
 
-/* Ключевые кадры для анимации падения */
 @keyframes fall {
   0% {
     transform: translateY(0) rotateZ(0deg);
@@ -192,7 +214,7 @@ h1 {
     opacity: 1;
   }
   100% {
-    transform: translateY(100vh) rotateZ(720deg); /* Падают на всю высоту экрана и вращаются */
+    transform: translateY(100vh) rotateZ(720deg);
     opacity: 0;
   }
 }
