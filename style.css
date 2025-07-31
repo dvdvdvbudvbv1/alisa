@@ -28,6 +28,16 @@ body {
   100% { background-position: 0% 50%; }
 }
 
+#confetti-canvas { /* Стили для канваса конфетти */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999; /* Чтобы было поверх всего */
+  pointer-events: none; /* Чтобы не блокировать события мыши */
+}
+
 #main-content-wrapper {
   position: relative;
   width: 100%;
@@ -110,7 +120,7 @@ h1 {
   cursor: pointer !important;
   transition: transform .3s !important;
   padding: 14px 20px !important;
-  font-size: 0.8em !important; /* Уменьшаем размер шрифта здесь */
+  font-size: 0.8em !important;
   margin: 10px auto !important;
   width: 240px !important;
   height: 50px !important;
@@ -161,25 +171,27 @@ h1 {
   display: none !important;
 }
 
-.audio-prompt {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.8);
-  color: white;
-  padding: 20px;
-  border-radius: 10px;
-  z-index: 1000;
-  text-align: center;
+/* Стили для падающих элементов */
+.falling-item {
+  position: absolute;
+  top: -50px; /* Начинаем за пределами экрана */
+  opacity: 0;
+  animation: fall linear forwards;
+  pointer-events: none; /* Чтобы не мешали взаимодействию */
+  z-index: 998; /* Под канвасом конфетти */
 }
 
-.audio-prompt button {
-  background: #ff69b4;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  margin-top: 10px;
-  cursor: pointer;
+/* Ключевые кадры для анимации падения */
+@keyframes fall {
+  0% {
+    transform: translateY(0) rotateZ(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotateZ(720deg); /* Падают на всю высоту экрана и вращаются */
+    opacity: 0;
+  }
 }
