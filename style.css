@@ -4,9 +4,10 @@
 }
 
 html, body {
-  height: 100%;
+  height: 100%; /* Занимаем всю высоту viewport */
   margin: 0;
   padding: 0;
+  overflow: hidden; /* Переместили overflow:hidden на body, чтобы предотвратить прокрутку ВСЕЙ страницы */
 }
 
 body {
@@ -15,34 +16,51 @@ body {
   background: linear-gradient(135deg, #ffc0cb, #d8bfd8, #a8f0ff, #ffe0f0, #c0f0ff, #f0e0ff);
   background-size: 800% 800%;
   animation: seamlessColorCycle 30s ease infinite;
-  /* УДАЛЯЕМ: overflow: hidden; Это главная причина обрезания контента */
   color: #fff;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
   position: relative;
+  display: flex; /* Используем flexbox для основного контента */
+  flex-direction: column;
 }
 
-/* Добавляем прокрутку для основного содержимого */
+@keyframes seamlessColorCycle {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 100% 75%; }
+  50% { background-position: 0% 100%; }
+  75% { background-position: 75% 0%; }
+  100% { background-position: 0% 50%; }
+}
+
+#confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  pointer-events: none;
+}
+
 #main-content-wrapper {
   position: relative;
   width: 100%;
-  min-height: 100vh; /* Минимальная высота, чтобы обертка была не меньше высоты viewport */
+  flex-grow: 1; /* Позволяет обертке занимать все доступное пространство по высоте */
   overflow-y: auto; /* Позволяем прокрутку, если контента много */
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 50px; /* Добавляем отступ снизу, чтобы контент не упирался в нижний край, можно увеличить */
-  box-sizing: border-box; /* Важно для padding-bottom, чтобы не добавлял высоту */
-  display: flex; /* Используем flexbox для центрирования и адаптивности */
+  padding: 20px 0 50px; /* Уменьшаем верхний паддинг, увеличиваем нижний для лучшего вида */
+  box-sizing: border-box; /* Важно для padding, чтобы не увеличивал размер */
+  display: flex; /* Flexbox для центрирования контента внутри обертки */
   flex-direction: column;
-  justify-content: center; /* Центрируем контент по вертикали, если его мало */
-  align-items: center; /* Центрируем контент по горизонтали */
+  justify-content: center; /* Центрируем по вертикали */
+  align-items: center; /* Центрируем по горизонтали */
 }
 
 .container {
   text-align: center;
-  padding: 30px;
+  padding: 0 20px; /* Уменьшаем горизонтальный паддинг */
   z-index: 2;
   position: relative;
-  /* Добавляем max-width, чтобы текст не растягивался на всю ширину на больших экранах */
-  max-width: 600px;
+  max-width: 600px; /* Ограничиваем максимальную ширину контейнера */
   width: 90%; /* Адаптивность для мобильных */
   margin: auto; /* Центрируем контейнер */
 }
@@ -80,47 +98,19 @@ h1 {
 }
 
 .message p {
-  overflow-wrap: break-word; /* Позволяет длинным словам переноситься */
-  word-wrap: break-word; /* Для старых браузеров */
-  white-space: pre-wrap; /* Сохраняет переводы строк и пробелы из текста, как в <pre> */
-  margin: 0 auto;
+  /* overflow: hidden; */ /* УДАЛЯЕМ: это могло обрезать текст */
+  white-space: pre-wrap; /* ВАЖНО: сохраняет переносы строк (\n) и пробелы */
+  word-wrap: break-word; /* Позволяет длинным словам переноситься */
+  margin: 0 auto; /* Центрирует параграф */
   padding: 0 10px;
-  /* max-width: fit-content;  -- Это может вызывать проблемы с шириной. Лучше убрать. */
+  /* max-width: fit-content; */ /* УДАЛЯЕМ: может вызывать проблемы с центрированием */
   font-size: 1.1em;
   line-height: 1.6; /* Увеличьте, если эмодзи слишком близко */
   text-align: center;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-
-  /* Эмодзи: сбрасываем family, чтобы браузер использовал системные эмодзи-шрифты */
+  /* ВАЖНО для эмодзи: устанавливаем цепочку шрифтов */
   font-family: 'Minecraftia', "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", "Apple Color Emoji", sans-serif;
 }
-
-/* Дополнительные стили для эмодзи (могут помочь) */
-.message p::before, .message p::after {
-  content: none; /* Убедитесь, что нет никаких псевдоэлементов, влияющих на размер */
-}
-
-/* ... остальной CSS без изменений ... */
-
-@keyframes seamlessColorCycle {
-  0% { background-position: 0% 50%; }
-  25% { background-position: 100% 75%; }
-  50% { background-position: 0% 100%; }
-  75% { background-position: 75% 0%; }
-  100% { background-position: 0% 50%; }
-}
-
-#confetti-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 999;
-  pointer-events: none;
-}
-
-/* main-content-wrapper уже изменили выше */
 
 .button-group {
   display: flex;
@@ -195,7 +185,6 @@ h1 {
   display: none !important;
 }
 
-/* Стили для падающих элементов */
 .falling-item {
   position: absolute;
   top: -50px;
