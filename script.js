@@ -158,9 +158,7 @@ document.getElementById("openBtn").addEventListener("click", () => {
     messageParagraph.innerHTML = ""; // Ensure the paragraph is truly empty
 
     // Заглушка для текста - теперь она тоже печатается плавно
-    // Важно: textContent не интерпретирует HTML. Для HTML нужно использовать innerHTML после typeWriter.
-    // А для typeWriter передавать чистый текст с \n.
-    const fallbackText = `Ой, ты сюда попала слишком рано!\nВозвращайся в День Рождения Алисы!\n\nОсталось ${remainingDays} дней... 🤫`;
+    const fallbackText = `Ой, ты сюда попала слишком рано!\n\nОсталось ${remainingDays} дней `;
     typeWriter(messageParagraph, fallbackText, 50);
 
     stopBgMusic();
@@ -261,11 +259,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const today = new Date();
   const currentYear = today.getFullYear();
   const birthdayThisYear = new Date(currentYear, BIRTHDAY_MONTH, BIRTHDAY_DAY);
-  today.setHours(0, 0, 0, 0);
-  birthdayThisYear.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0); // Обнуляем время для точного сравнения только по дате
+  birthdayThisYear.setHours(0, 0, 0, 0); // Обнуляем время для точного сравнения только по дате
 
   let nextBirthdayYear = currentYear;
-  if (today.getTime() > birthdayThisYear.getTime()) { // Сравниваем getTime() для точности
+  // Если сегодня позже Дня Рождения в текущем году, то следующий ДР будет в следующем году.
+  if (today.getTime() > birthdayThisYear.getTime()) { 
       nextBirthdayYear = currentYear + 1;
   }
   const nextBirthday = new Date(nextBirthdayYear, BIRTHDAY_MONTH, BIRTHDAY_DAY);
@@ -277,8 +276,12 @@ document.addEventListener('DOMContentLoaded', () => {
   } else if (today.getTime() < nextBirthday.getTime()) { // День Рождения еще не наступил
       isBirthdayToday = false;
       document.title = "Скоро День Рождения Алисы!";
-  } else { // День Рождения уже прошел в этом году (и не сегодня)
-      isBirthdayToday = true; // Считаем, что День Рождения прошел, показываем обычное поздравление
+  } else { 
+      // Этот блок, по идее, не должен быть достигнут, если логика выше верна, 
+      // но если День Рождения уже прошел и не был сегодняшним, 
+      // и мы не перешли на следующий год, это резервный вариант.
+      // Для простоты, если мы здесь, считаем, что поздравление актуально.
+      isBirthdayToday = true; 
       document.title = "С Днём Рождения, Алиса!";
   }
 
