@@ -296,3 +296,53 @@ document.addEventListener('DOMContentLoaded', () => {
 function vibrate(duration = 100) {
     if ('vibrate' in navigator) navigator.vibrate(duration);
 }
+function drawHeartParticles() {
+  const canvas = document.getElementById("heartCanvas");
+  const ctx = canvas.getContext("2d");
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  resize();
+  window.addEventListener("resize", resize);
+
+  const particles = [];
+  const numParticles = 500;
+
+  for (let i = 0; i < numParticles; i++) {
+    const t = Math.random() * 2 * Math.PI;
+    const r = 16 * Math.pow(Math.sin(t), 3);
+    const x = canvas.width / 2 + 10 * r * Math.cos(t);
+    const y = canvas.height / 2 - 10 * r * Math.sin(t);
+
+    particles.push({
+      x,
+      y,
+      size: Math.random() * 2 + 1,
+      alpha: 0.5 + Math.random() * 0.5,
+      dx: (Math.random() - 0.5) * 1.5,
+      dy: (Math.random() - 0.5) * 1.5
+    });
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.dx;
+      p.y += p.dy;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, 2 * Math.PI);
+      ctx.fillStyle = `rgba(255, 105, 180, ${p.alpha})`;
+      ctx.fill();
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+}
+
+document.addEventListener("DOMContentLoaded", drawHeartParticles);
