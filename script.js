@@ -1,14 +1,9 @@
-// Аудио элементы
+// --- Аудио ---
 const bgMusic = document.getElementById("bg-music");
 
-// --- Функции для эффектов ---
-
-// Взрыв конфетти
+// --- Конфетти ---
 function launchConfetti() {
-  if (typeof confetti === 'undefined') {
-    console.warn("Confetti library not loaded. Make sure confetti.browser.min.js is included.");
-    return;
-  }
+  if (typeof confetti === 'undefined') return;
   const myConfetti = confetti.create(document.getElementById('confetti-canvas'), {
     resize: true,
     useWorker: true
@@ -20,27 +15,13 @@ function launchConfetti() {
     origin: { y: 0.6 },
     colors: ['#ffc0cb', '#d8bfd8', '#a8f0ff', '#ffffff']
   });
-
-  myConfetti({
-    particleCount: 100,
-    spread: 90,
-    origin: { x: 0.1, y: 0.7 },
-    colors: ['#ffc0cb', '#d8bfd8', '#a8f0ff', '#ffffff']
-  });
-  myConfetti({
-    particleCount: 100,
-    spread: 90,
-    origin: { x: 0.9, y: 0.7 },
-    colors: ['#ffc0cb', '#d8bfd8', '#a8f0ff', '#ffffff']
-  });
 }
 
-// Падающие сердечки/сакура
+// --- Падение ---
 const fallingItems = ['❤️', '🌸'];
 let fallingInterval;
 
 function startFallingItems() {
-  // Останавливаем предыдущий интервал, если он есть, чтобы избежать множественных запусков
   stopFallingItems(); 
   fallingInterval = setInterval(() => {
     const item = document.createElement('div');
@@ -49,12 +30,8 @@ function startFallingItems() {
     item.style.left = `${Math.random() * 100}vw`;
     item.style.fontSize = `${Math.random() * 20 + 15}px`;
     item.style.animationDuration = `${Math.random() * 5 + 5}s`;
-
     document.body.appendChild(item);
-
-    item.addEventListener('animationend', () => {
-      item.remove();
-    });
+    item.addEventListener('animationend', () => item.remove());
   }, 300);
 }
 
@@ -63,69 +40,52 @@ function stopFallingItems() {
   document.querySelectorAll('.falling-item').forEach(item => item.remove());
 }
 
-// Функции для фоновой музыки
 function playBgMusic() {
   if (bgMusic) {
-    bgMusic.play().catch(e => console.error("Error playing background music:", e));
+    bgMusic.play().catch(e => console.error(e));
   }
 }
 
 function stopBgMusic() {
   if (bgMusic) {
     bgMusic.pause();
-    bgMusic.currentTime = 0; // Reset to start
+    bgMusic.currentTime = 0;
   }
 }
 
-// Заглушка для функции паузы трека плеера (если плеер отсутствует)
-function pauseCurrentTrack() {
-  // Логика паузы трека плеера, если он будет добавлен.
+function pauseCurrentTrack() {}
+
+let typeWriterTimeout = null;
+
+function typeWriter(element, text, speed) {
+  if (typeWriterTimeout) clearTimeout(typeWriterTimeout);
+  element.innerHTML = "";
+  let i = 0;
+  const chars = text.split('');
+  function type() {
+    if (i < chars.length) {
+      element.innerHTML += (chars[i] === '\n' ? '<br>' : chars[i]);
+      i++;
+      typeWriterTimeout = setTimeout(type, speed);
+    } else {
+      typeWriterTimeout = null;
+    }
+  }
+  type();
 }
 
-
-// --- Дата Дня Рождения Алисы (Месяц и День) ---
-const BIRTHDAY_MONTH = 4; // Май (месяцы начинаются с 0, так что 4 = май)
-const BIRTHDAY_DAY = 19; // 19 число
-
-// Глобальная переменная для отслеживания состояния Дня Рождения
+// --- День рождения ---
+const BIRTHDAY_MONTH = 4;
+const BIRTHDAY_DAY = 19;
 let isBirthdayToday = false;
 
-
-// --- Массив с разными вариантами поздравлений ---
-// Используем '\n' для переносов строк, чтобы typeWriter и white-space: pre-wrap; работали корректно.
 const greetings = [
-  `Дорогая Алиса!\n\n
-С Днём Рождения тебя, солнце ☀️\n
-Пусть в жизни будет больше света, тепла, любви и волшебства.\n
-Ты делаешь этот мир ярче, просто оставаясь собой.\n
-Я бесконечно рад, что ты есть.\n\n
-Никогда не переставай мечтать — ты достойна самого лучшего💗\n\n
-С любовью и самыми тёплыми пожеланиями 💫\n\n`,
-
-  `Моя чудесная Алиса!\n\n
-С Днём Рождения! Пусть каждый твой день будет наполнен радостью,
-улыбками и вдохновением. Желаю тебе исполнения самых заветных желаний,
-невероятных приключений и искренней любви.\n\n
-Будь счастлива, сияй ярче звёзд!\n\n
-Обнимаю крепко! ✨\n\n`,
-
-  `С Днём Рождения, Алиса!\n\n
-Сегодня твой день, и пусть он будет таким же особенным,
-как и ты! Желаю тебе невероятного счастья, здоровья,
-успехов во всех начинаниях и чтобы рядом всегда были
-только самые близкие и любящие люди.\n\n
-Ты невероятная! ❤️\n\n`,
-
-  `Алиса, с праздником!\n\n
-Пусть этот год принесёт тебе много новых открытий,
-ярких моментов и незабываемых впечатлений. Желаю, чтобы
-все твои мечты сбывались, а жизнь была полна гармонии
-и позитивных эмоций.\n\n
-Всего самого наилучшего! 🎉\n\n`
+  `Дорогая Алиса!\n\nС Днём Рождения тебя, солнце ☀️\nПусть в жизни будет больше света...`,
+  `Моя чудесная Алиса!\n\nС Днём Рождения! Пусть каждый твой день будет полон...`,
+  `С Днём Рождения, Алиса!\n\nТы невероятная! ❤️\n\n`,
+  `Алиса, с праздником!\n\nПусть этот год принесёт тебе много...`
 ];
 
-
-// --- Кнопка «Открыть поздравление» ---
 document.getElementById("openBtn").addEventListener("click", () => {
   vibrate();
   document.getElementById("main-buttons").classList.add("hidden");
@@ -133,31 +93,20 @@ document.getElementById("openBtn").addEventListener("click", () => {
   document.getElementById("backBtn").classList.remove("hidden");
 
   const messageParagraph = document.querySelector("#mainMessage p");
-  
-  if (!isBirthdayToday) { // Если День Рождения еще не наступил
+
+  if (!isBirthdayToday) {
     const today = new Date();
     const currentYear = today.getFullYear();
     const birthdayThisYear = new Date(currentYear, BIRTHDAY_MONTH, BIRTHDAY_DAY);
     today.setHours(0, 0, 0, 0);
     birthdayThisYear.setHours(0, 0, 0, 0);
-
     let nextBirthdayYear = currentYear;
-    if (today > birthdayThisYear) {
-        nextBirthdayYear = currentYear + 1;
-    }
+    if (today > birthdayThisYear) nextBirthdayYear = currentYear + 1;
     const nextBirthday = new Date(nextBirthdayYear, BIRTHDAY_MONTH, BIRTHDAY_DAY);
-    nextBirthday.setHours(0, 0, 0, 0);
+    const remainingDays = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
 
-    const remainingDays = Math.ceil((nextBirthday.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    
-    // Clear any previous typewriter effect before starting a new one
-    if (typeWriterTimeout) {
-        clearTimeout(typeWriterTimeout);
-        typeWriterTimeout = null;
-    }
-    messageParagraph.innerHTML = ""; // Ensure the paragraph is truly empty
-
-    // Заглушка для текста - теперь она тоже печатается плавно
+    if (typeWriterTimeout) clearTimeout(typeWriterTimeout);
+    messageParagraph.innerHTML = "";
     const fallbackText = `Ой, ты сюда попала слишком рано!\n\nОсталось ${remainingDays} дней `;
     typeWriter(messageParagraph, fallbackText, 50);
 
@@ -165,10 +114,9 @@ document.getElementById("openBtn").addEventListener("click", () => {
     stopFallingItems();
     pauseCurrentTrack();
   } else {
-    // Если сегодня День Рождения или уже после
     const randomIndex = Math.floor(Math.random() * greetings.length);
     const selectedGreeting = greetings[randomIndex];
-    typeWriter(messageParagraph, selectedGreeting, 50); // Плавная печать поздравления
+    typeWriter(messageParagraph, selectedGreeting, 50);
     playBgMusic();
     launchConfetti();
     startFallingItems();
@@ -176,246 +124,115 @@ document.getElementById("openBtn").addEventListener("click", () => {
   }
 });
 
-// --- Секретное слово ---
 document.getElementById("check-secret").addEventListener("click", () => {
   vibrate();
   const value = document.getElementById("secret-input").value.trim().toLowerCase();
   const div = document.getElementById("secret-message");
-
   document.getElementById("main-buttons").classList.add("hidden");
   div.style.display = 'block';
   document.getElementById("backBtn").classList.remove("hidden");
 
-  // Clear any previous typewriter effect if it was active
-  if (typeWriterTimeout) {
-      clearTimeout(typeWriterTimeout);
-      typeWriterTimeout = null;
-  }
-  div.innerHTML = ""; // Clear the secret message div too
+  if (typeWriterTimeout) clearTimeout(typeWriterTimeout);
+  div.innerHTML = "";
 
   if (value === "чудо" || value === "ты моё чудо") {
     div.innerHTML = "🎉 Ты ввела секретное слово: ты моё чудо! 💖";
   } else {
     div.innerHTML = "😅 Неверное слово. Попробуй снова!";
   }
+
   stopBgMusic();
   stopFallingItems();
   pauseCurrentTrack();
 });
 
-
-// --- Кнопка «Назад» ---
 document.getElementById("backBtn").addEventListener("click", () => {
   vibrate();
   document.getElementById("main-buttons").classList.remove("hidden");
   document.getElementById("mainMessage").classList.remove("show");
   document.getElementById("secret-message").style.display = "none";
   document.getElementById("backBtn").classList.add("hidden");
-  
-  pauseCurrentTrack(); 
+
+  pauseCurrentTrack();
   stopBgMusic();
   stopFallingItems();
 
-  // Crucially, stop the typewriter effect when going back
-  if (typeWriterTimeout) {
-      clearTimeout(typeWriterTimeout);
-      typeWriterTimeout = null;
-  }
-  document.querySelector("#mainMessage p").innerHTML = ""; // Clear the content immediately
+  if (typeWriterTimeout) clearTimeout(typeWriterTimeout);
+  document.querySelector("#mainMessage p").innerHTML = "";
 });
 
-// --- Печать текста по буквам ---
-let typeWriterTimeout = null; // Инициализируем null
-
-function typeWriter(element, text, speed) {
-  // Clear any existing timeout to prevent multiple concurrent animations
-  if (typeWriterTimeout) {
-    clearTimeout(typeWriterTimeout);
-    typeWriterTimeout = null; // Reset to null after clearing
-  }
-
-  element.innerHTML = ""; // Ensure the element is completely empty before starting
-  let i = 0;
-  // Используем split('') для разбивки текста на символы, \n будет обрабатываться ниже
-  const chars = text.split(''); 
-
-  function type() {
-    if (i < chars.length) {
-      // Заменяем '\n' на '<br>' непосредственно при добавлении символов
-      element.innerHTML += (chars[i] === '\n' ? '<br>' : chars[i]);
-      i++;
-      typeWriterTimeout = setTimeout(type, speed);
-    } else {
-      typeWriterTimeout = null; // Очищаем таймаут, когда печать завершена
-    }
-  }
-  type();
+function vibrate(duration = 100) {
+  if ('vibrate' in navigator) navigator.vibrate(duration);
 }
 
-
-// --- Инициализация при загрузке ---
 document.addEventListener('DOMContentLoaded', () => {
-  // Проверяем дату при загрузке страницы и устанавливаем заголовок
   const today = new Date();
   const currentYear = today.getFullYear();
   const birthdayThisYear = new Date(currentYear, BIRTHDAY_MONTH, BIRTHDAY_DAY);
-  today.setHours(0, 0, 0, 0); // Обнуляем время для точного сравнения только по дате
-  birthdayThisYear.setHours(0, 0, 0, 0); // Обнуляем время для точного сравнения только по дате
-
+  today.setHours(0, 0, 0, 0);
+  birthdayThisYear.setHours(0, 0, 0, 0);
   let nextBirthdayYear = currentYear;
-  // Если сегодня позже Дня Рождения в текущем году, то следующий ДР будет в следующем году.
-  if (today.getTime() > birthdayThisYear.getTime()) { 
-      nextBirthdayYear = currentYear + 1;
-  }
+  if (today > birthdayThisYear) nextBirthdayYear++;
   const nextBirthday = new Date(nextBirthdayYear, BIRTHDAY_MONTH, BIRTHDAY_DAY);
-  nextBirthday.setHours(0, 0, 0, 0);
 
-  if (today.getTime() === birthdayThisYear.getTime()) { // Сегодня День Рождения
-      isBirthdayToday = true;
-      document.title = "С Днём Рождения, Алиса!";
-  } else if (today.getTime() < nextBirthday.getTime()) { // День Рождения еще не наступил
-      isBirthdayToday = false;
-      document.title = "Скоро День Рождения Алисы!";
-  } else { 
-      // Этот блок, по идее, не должен быть достигнут, если логика выше верна, 
-      // но если День Рождения уже прошел и не был сегодняшним, 
-      // и мы не перешли на следующий год, это резервный вариант.
-      // Для простоты, если мы здесь, считаем, что поздравление актуально.
-      isBirthdayToday = true; 
-      document.title = "С Днём Рождения, Алиса!";
-  }
+  isBirthdayToday = today.getTime() === birthdayThisYear.getTime();
 
+  document.title = isBirthdayToday ? "С Днём Рождения, Алиса!" : "Скоро День Рождения Алисы!";
 
-  // Разблокировка аудио по первому клику
   document.body.addEventListener('click', () => {
-    if (bgMusic) bgMusic.play().then(() => bgMusic.pause()).catch(e => console.warn("Background audio activation failed:", e));
+    if (bgMusic) bgMusic.play().then(() => bgMusic.pause()).catch(() => {});
   }, { once: true });
 });
 
-// Функция вибрации
-function vibrate(duration = 100) {
-    if ('vibrate' in navigator) navigator.vibrate(duration);
-}
-function drawHeartParticles() {
-  const canvas = document.getElementById("heartCanvas");
-  const ctx = canvas.getContext("2d");
-
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-
-  resize();
-  window.addEventListener("resize", resize);
-
-  const particles = [];
-  const numParticles = 500;
-
-  for (let i = 0; i < numParticles; i++) {
-    const t = Math.random() * 2 * Math.PI;
-    const r = 16 * Math.pow(Math.sin(t), 3);
-    const x = canvas.width / 2 + 10 * r * Math.cos(t);
-    const y = canvas.height / 2 - 10 * r * Math.sin(t);
-
-    particles.push({
-      x,
-      y,
-      size: Math.random() * 2 + 1,
-      alpha: 0.5 + Math.random() * 0.5,
-      dx: (Math.random() - 0.5) * 1.5,
-      dy: (Math.random() - 0.5) * 1.5
-    });
-  }
-
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => {
-      p.x += p.dx;
-      p.y += p.dy;
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, 2 * Math.PI);
-      ctx.fillStyle = `rgba(255, 105, 180, ${p.alpha})`;
-      ctx.fill();
-    });
-
-    requestAnimationFrame(animate);
-  }
-
-  animate();
-}
-
-document.addEventListener("DOMContentLoaded", drawHeartParticles);
-function drawHeartParticles() {
-  const canvas = document.getElementById("heartCanvas");
-  const ctx = canvas.getContext("2d");
-
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-
-  resize();
-  window.addEventListener("resize", resize);
-
-  const particles = [];
-  const numParticles = 500;
-
-  for (let i = 0; i < numParticles; i++) {
-    const t = Math.random() * 2 * Math.PI;
-    const r = 16 * Math.pow(Math.sin(t), 3);
-    const x = canvas.width / 2 + 10 * r * Math.cos(t);
-    const y = canvas.height / 2 - 10 * r * Math.sin(t);
-
-    particles.push({
-      x,
-      y,
-      size: Math.random() * 2 + 1,
-      alpha: 0.5 + Math.random() * 0.5,
-      dx: (Math.random() - 0.5) * 1.5,
-      dy: (Math.random() - 0.5) * 1.5
-    });
-  }
-
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => {
-      p.x += p.dx;
-      p.y += p.dy;
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, 2 * Math.PI);
-      ctx.fillStyle = `rgba(255, 105, 180, ${p.alpha})`;
-      ctx.fill();
-    });
-
-    requestAnimationFrame(animate);
-  }
-
-  animate();
-}
-
-let heartActive = false;
-let heartAnimationStarted = false;
-
-document.getElementById("toggle-heart").addEventListener("click", () => {
-  heartActive = !heartActive;
-
-  const canvas = document.getElementById("heartCanvas");
-  const text = document.getElementById("heartText");
-
-  if (heartActive) {
-    canvas.classList.add("active");
-    text.classList.add("active");
-    document.getElementById("toggle-heart").textContent = "Скрыть сердце";
-
-    if (!heartAnimationStarted) {
-      drawHeartParticles();
-      heartAnimationStarted = true;
-    }
-  } else {
-    canvas.classList.remove("active");
-    text.classList.remove("active");
-    document.getElementById("toggle-heart").textContent = "Показать сердце";
-  }
+// --- Сердечная сцена ---
+document.getElementById("open-heart").addEventListener("click", () => {
+  document.getElementById("main-content-wrapper").classList.add("hidden");
+  document.getElementById("heart-scene").classList.remove("hidden");
+  startHeartAnimation();
 });
+
+document.getElementById("backFromHeart").addEventListener("click", () => {
+  document.getElementById("heart-scene").classList.add("hidden");
+  document.getElementById("main-content-wrapper").classList.remove("hidden");
+});
+
+function startHeartAnimation() {
+  const canvas = document.getElementById("heartCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const particles = [];
+  const numParticles = 600;
+
+  for (let i = 0; i < numParticles; i++) {
+    const t = Math.random() * Math.PI * 2;
+    const r = 16 * Math.pow(Math.sin(t), 3);
+    const x = canvas.width / 2 + 10 * r * Math.cos(t);
+    const y = canvas.height / 2 - 10 * r * Math.sin(t);
+
+    particles.push({
+      x,
+      y,
+      size: Math.random() * 2 + 1,
+      alpha: 0.5 + Math.random() * 0.5,
+      dx: (Math.random() - 0.5) * 0.7,
+      dy: (Math.random() - 0.5) * 0.7
+    });
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.dx;
+      p.y += p.dy;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, 2 * Math.PI);
+      ctx.fillStyle = `rgba(255, 105, 180, ${p.alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+}
