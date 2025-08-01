@@ -4,22 +4,21 @@
 }
 
 html, body {
-  height: 100%; /* Занимаем всю высоту viewport */
+  height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Переместили overflow:hidden на body, чтобы предотвратить прокрутку ВСЕЙ страницы */
+  overflow: hidden;
 }
 
 body {
   font-family: 'Minecraftia', sans-serif;
-  /* Добавлены новые цвета для градиента фона */
   background: linear-gradient(135deg, #ffc0cb, #d8bfd8, #a8f0ff, #ffe0f0, #c0f0ff, #f0e0ff);
   background-size: 800% 800%;
   animation: seamlessColorCycle 30s ease infinite;
   color: #fff;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
   position: relative;
-  display: flex; /* Используем flexbox для основного контента */
+  display: flex;
   flex-direction: column;
 }
 
@@ -44,25 +43,25 @@ body {
 #main-content-wrapper {
   position: relative;
   width: 100%;
-  flex-grow: 1; /* Позволяет обертке занимать все доступное пространство по высоте */
-  overflow-y: auto; /* Позволяем прокрутку, если контента много */
+  flex-grow: 1;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 20px 0 50px; /* Уменьшаем верхний паддинг, увеличиваем нижний для лучшего вида */
-  box-sizing: border-box; /* Важно для padding, чтобы не увеличивал размер */
-  display: flex; /* Flexbox для центрирования контента внутри обертки */
+  padding: 20px 0 50px;
+  box-sizing: border-box;
+  display: flex;
   flex-direction: column;
-  justify-content: center; /* Центрируем по вертикали */
-  align-items: center; /* Центрируем по горизонтали */
+  justify-content: center;
+  align-items: center;
 }
 
 .container {
   text-align: center;
-  padding: 0 20px; /* Уменьшаем горизонтальный паддинг */
+  padding: 0 20px;
   z-index: 2;
   position: relative;
-  max-width: 600px; /* Ограничиваем максимальную ширину контейнера */
-  width: 90%; /* Адаптивность для мобильных */
-  margin: auto; /* Центрируем контейнер */
+  max-width: 600px;
+  width: 90%;
+  margin: auto;
 }
 
 .karina-img {
@@ -98,15 +97,14 @@ h1 {
 }
 
 .message p {
-  white-space: pre-wrap; /* ВАЖНО: сохраняет переносы строк (\n) и пробелы */
-  word-wrap: break-word; /* Позволяет длинным словам переноситься */
-  margin: 0 auto; /* Центрирует параграф */
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0 auto;
   padding: 0 10px;
-  font-size: 0.85em; /* Размер текста как на кнопках */
-  line-height: 1.6; /* Увеличьте, если эмодзи слишком близко */
+  font-size: 0.85em;
+  line-height: 1.6;
   text-align: center;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-  /* ВАЖНО для эмодзи: устанавливаем цепочку шрифтов */
   font-family: 'Minecraftia', "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", "Apple Color Emoji", sans-serif;
 }
 
@@ -183,75 +181,37 @@ h1 {
   display: none !important;
 }
 
-.falling-item {
+/* Сцена сердечка */
+#heart-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#heartCanvas {
   position: absolute;
-  top: -50px;
-  opacity: 0;
-  animation: fall linear forwards;
-  pointer-events: none;
-  z-index: 998;
-}
-
-@keyframes fall {
-  0% {
-    transform: translateY(0) rotateZ(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100vh) rotateZ(720deg);
-    opacity: 0;
-  }
-}
-#heartCanvas {
-  position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 2;
-}
-#heartText {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-family: 'Minecraftia', sans-serif;
-  font-size: 2em;
-  color: #ff69b4;
-  z-index: 3;
-  pointer-events: none;
-  text-shadow: 1px 1px 2px black;
-}
-#heartCanvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 2;
-  display: none;
+  width: 100%;
+  height: 100%;
 }
 
 #heartText {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   font-family: 'Minecraftia', sans-serif;
   font-size: 2em;
   color: #ff69b4;
-  z-index: 3;
+  text-shadow: 2px 2px 4px black;
+  z-index: 2;
   pointer-events: none;
-  text-shadow: 1px 1px 2px black;
-  display: none;
 }
 
-#heartCanvas.active,
-#heartText.active {
-  display: block;
+#backFromHeart {
+  z-index: 3;
+  margin-top: 20px;
 }
